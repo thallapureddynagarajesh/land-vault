@@ -1,0 +1,14 @@
+name: Pull Request validation
+
+on: [pull_request]
+
+
+jobs:
+  land_chain-contracts-ci:
+    name: Run land_chain-contracts validation
+    uses: ./.github/workflows/land_chain-contracts-ci.yaml
+
+  land_chain-frontend-ci:
+    name: Run land_chain-frontend validation
+    uses: ./.github/workflows/land_chain-frontend-ci.yaml
+

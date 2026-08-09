@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.vscode/**'
+      - '.idea/**'
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  land_chain-contracts-validate:
+    name: Run land_chain-contracts release
+    secrets: inherit
+    uses: ./.github/workflows/land_chain-contracts-ci.yaml
+
+  land_chain-contracts-release:
+    name: Run land_chain-contracts release
+    secrets: inherit
+    uses: ./.github/workflows/land_chain-contracts-cd.yaml
+    needs: land_chain-contracts-validate
+
+  land_chain-frontend-validate:
+    name: Run land_chain-frontend release
+    secrets: inherit
+    uses: ./.github/workflows/land_chain-frontend-ci.yaml
+
+  land_chain-frontend-release:
+    name: Run land_chain-frontend release
+    secrets: inherit
+    uses: ./.github/workflows/land_chain-frontend-cd.yaml
+    needs: land_chain-frontend-validate
