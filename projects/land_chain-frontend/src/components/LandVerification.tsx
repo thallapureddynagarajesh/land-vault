@@ -85,17 +85,27 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
     }, 800)
   }
 
+  const [searchError, setSearchError] = useState<string | null>(null)
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
+    setSearchError(null)
     if (!searchQuery.trim()) return
+
+    const q = searchQuery.trim().toLowerCase()
     const match = parcels.find(
       (p) =>
-        p.parcelId.toLowerCase() === searchQuery.trim().toLowerCase() ||
-        p.owner.toLowerCase() === searchQuery.trim().toLowerCase() ||
-        p.location.toLowerCase().includes(searchQuery.trim().toLowerCase())
+        p.parcelId.toLowerCase() === q ||
+        p.owner.toLowerCase() === q ||
+        p.location.toLowerCase().includes(q)
     )
+
     if (match) {
       setSelectedParcel(match)
+      setFileVerificationStatus(null)
+      setSearchError(null)
+    } else {
+      setSearchError(`No land record found matching '${searchQuery}'. Try clicking one of the Quick Try parcel IDs below.`)
     }
   }
 
@@ -183,6 +193,20 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
               Store Document in Ledger
             </button>
           </div>
+
+          {searchError && (
+            <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center justify-between animate-in fade-in duration-200">
+              <span className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" /> {searchError}
+              </span>
+              <button
+                onClick={() => setSearchError(null)}
+                className="text-amber-400 hover:text-white font-bold text-xs"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
 
           {/* Quick suggestions */}
           <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-xs text-slate-400">

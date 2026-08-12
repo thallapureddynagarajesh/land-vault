@@ -300,13 +300,32 @@ export const LandRecordDetails: React.FC<LandRecordDetailsProps> = ({
         </div>
       </div>
 
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t border-slate-800">
+        <button
+          onClick={handleVerifyDocument}
+          disabled={verificationStatus === 'VERIFYING'}
+          className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+        >
+          {verificationStatus === 'VERIFYING' ? (
+            <>
+              <RefreshCw className="w-4 h-4 animate-spin" /> Computing & Verifying SHA-256 On-Chain Match...
+            </>
+          ) : (
+            <>
+              <ShieldCheck className="w-4 h-4" /> Verify Cryptographic Hash Integrity
+            </>
+          )}
+        </button>
+      </div>
+
       {/* Verification Status Result Box */}
       {verificationStatus !== 'IDLE' && (
-        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+        <div className="p-5 rounded-2xl bg-slate-950 border border-emerald-500/40 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
           {verificationStatus === 'VERIFYING' && (
             <div className="flex items-center gap-3 text-cyan-400 text-xs font-semibold">
               <RefreshCw className="w-4 h-4 animate-spin" />
-              <span>Fetching document from IPFS gateway & calculating SHA-256 hash...</span>
+              <span>Fetching document from IPFS gateway & calculating SHA-256 cryptographic hash...</span>
             </div>
           )}
 
@@ -314,14 +333,14 @@ export const LandRecordDetails: React.FC<LandRecordDetailsProps> = ({
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-emerald-400 font-extrabold text-sm">
                 <FileCheck2 className="w-5 h-5" />
-                <span>Document Status: VERIFIED</span>
+                <span>Document Status: VERIFIED (MATCH)</span>
               </div>
               <p className="text-xs text-slate-300">
-                ✔ The document retrieved from IPFS matches the on-chain SHA-256 cryptographic hash recorded on Algorand. The document is authentic and has NOT been modified since registration.
+                ✔ The document retrieved from IPFS matches the on-chain SHA-256 cryptographic hash recorded on Algorand Box Storage. The document is 100% authentic and has NOT been modified since registration.
               </p>
               {computedHashResult && (
-                <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 font-mono text-[11px] text-emerald-300 break-all">
-                  Calculated Hash: {computedHashResult}
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 font-mono text-[11px] text-emerald-300 break-all">
+                  On-Chain Sealed Hash: {computedHashResult}
                 </div>
               )}
             </div>
@@ -340,16 +359,6 @@ export const LandRecordDetails: React.FC<LandRecordDetailsProps> = ({
           )}
         </div>
       )}
-
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t border-slate-800">
-        <button
-          onClick={handleVerifyDocument}
-          className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
-        >
-          <ShieldCheck className="w-4 h-4" /> Verify Cryptographic Hash Integrity
-        </button>
-      </div>
     </div>
   )
 }
