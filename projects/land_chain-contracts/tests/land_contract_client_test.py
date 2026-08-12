@@ -14,6 +14,11 @@ from smart_contracts.artifacts.land_contract.land_contract_client import (
 
 @pytest.fixture()
 def deployer(algorand_client: AlgorandClient) -> SigningAccount:
+    try:
+        algorand_client.client.algod.health()
+    except Exception:
+        pytest.skip("Algod LocalNet is not running")
+
     account = algorand_client.account.from_environment("DEPLOYER")
     algorand_client.account.ensure_funded_from_environment(
         account_to_fund=account.address, min_spending_balance=AlgoAmount.from_algo(10)
@@ -36,20 +41,7 @@ def land_contract_client(
     return client
 
 
-def test_says_hello(land_contract_client: LandContractClient) -> None:
-    result = land_contract_client.send.hello(args=("World",))
-    assert result.abi_return == "Hello, World"
+def test_land_contract_deployment(land_contract_client: LandContractClient) -> None:
+    admin = land_contract_client.send.get_admin()
+    assert admin.abi_return is not None
 
-
-def test_simulate_says_hello_with_correct_budget_consumed(
-    land_contract_client: LandContractClient,
-) -> None:
-    result = (
-        land_contract_client.new_group()
-        .hello(args=("World",))
-        .hello(args=("Jane",))
-        .simulate()
-    )
-    assert result.returns[0].value == "Hello, World"
-    assert result.returns[1].value == "Hello, Jane"
-    assert result.simulate_response["txn-groups"][0]["app-budget-consumed"] < 100

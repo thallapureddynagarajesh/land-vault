@@ -1,0 +1,14 @@
+====================================================================
+           OFFICIAL GOVERNMENT LAND TITLE DEED CERTIFICATE
+====================================================================
+PARCEL IDENTIFICATION NUMBER: PRCL-2026-8801
+LOCATION: Sector 14, Plot 88, Metro Financial District
+TOTAL AREA: 3,500 sq.ft
+PROPERTY CLASSIFICATION: Residential
+INITIAL OWNER ALGORAND ADDRESS: 58X7K2A9P3M8V1N4Q6R0T9W2Y5Z8B1C4D7E0F3G6H9J2
+IPFS DOCUMENT HASH: QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco
+BLOCKCHAIN NETWORK: Algorand Mainnet Standard AVM Box Storage
+REGISTRATION TIMESTAMP: 2026-02-02 10:00:00 UTC
+OFFICIAL ISSUING AUTHORITY: Municipal Ministry of Land & Urban Planning
+====================================================================
+STATUS: AUTHENTICATED & SEALED ON-CHAIN
