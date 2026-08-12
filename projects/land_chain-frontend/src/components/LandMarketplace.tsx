@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Store, Tag, MapPin, ExternalLink, ShoppingCart, Filter, ArrowUpDown, ShieldCheck } from 'lucide-react'
+import { Store, Tag, MapPin, ExternalLink, ShoppingCart, Filter, ArrowUpDown, ShieldCheck, CreditCard, CheckCircle2, RefreshCw, X, Wallet, ArrowRight } from 'lucide-react'
 import { LandParcel } from '../interfaces/land'
 
 interface LandMarketplaceProps {
@@ -20,6 +20,11 @@ export const LandMarketplace: React.FC<LandMarketplaceProps> = ({
   const [selectedType, setSelectedType] = useState<string>('All')
   const [sortBy, setSortBy] = useState<'priceAsc' | 'priceDesc' | 'newest'>('newest')
 
+  // Atomic Buy Payment Modal State
+  const [buyingParcel, setBuyingParcel] = useState<LandParcel | null>(null)
+  const [isProcessingBuy, setIsProcessingBuy] = useState(false)
+  const [confirmedTxId, setConfirmedTxId] = useState<string | null>(null)
+
   // Filter listed parcels
   const listedParcels = parcels.filter((p) => p.isForSale)
 
@@ -34,6 +39,23 @@ export const LandMarketplace: React.FC<LandMarketplaceProps> = ({
     return b.createdAt - a.createdAt
   })
 
+  const handleConfirmPurchase = async () => {
+    if (!buyingParcel) return
+
+    setIsProcessingBuy(true)
+    const priceAlgos = buyingParcel.priceMicroAlgos / 1e6
+
+    // Simulate Algorand Atomic Transaction Payment Group execution (~1.2s)
+    await new Promise((r) => setTimeout(r, 1200))
+
+    const txId = `TX-BUY-${buyingParcel.parcelId}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+    setConfirmedTxId(txId)
+
+    // Execute title transfer
+    onBuyLand(buyingParcel.parcelId, priceAlgos, buyingParcel.owner)
+    setIsProcessingBuy(false)
+  }
+
   return (
     <div className="space-y-8">
       {/* Header Banner */}
@@ -47,10 +69,10 @@ export const LandMarketplace: React.FC<LandMarketplaceProps> = ({
               <div className="flex items-center gap-2">
                 <h2 className="text-2xl font-bold text-white">Algorand Atomic Land Marketplace</h2>
                 <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-semibold">
-                  Zero Trust Settlement
+                  Atomic Settlement
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-1">Buy & sell authenticated real-estate parcels with instant payment transfer & atomic title handover (~2.8s finality).</p>
+              <p className="text-xs text-slate-400 mt-1">Buy & sell authenticated real-estate parcels with instant ALGO payment transfer & atomic title handover.</p>
             </div>
           </div>
 
@@ -165,7 +187,10 @@ export const LandMarketplace: React.FC<LandMarketplaceProps> = ({
                       </button>
                     ) : (
                       <button
-                        onClick={() => onBuyLand(parcel.parcelId, priceAlgos, parcel.owner)}
+                        onClick={() => {
+                          setBuyingParcel(parcel)
+                          setConfirmedTxId(null)
+                        }}
                         className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-emerald-500 to-teal-500 hover:from-amber-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
                       >
                         <ShoppingCart className="w-4 h-4" /> Buy Property Instant
@@ -199,6 +224,131 @@ export const LandMarketplace: React.FC<LandMarketplaceProps> = ({
           <Tag className="w-12 h-12 mx-auto mb-3 text-slate-500" />
           <h3 className="text-base font-semibold text-white">No properties currently listed in this category</h3>
           <p className="text-xs text-slate-400 mt-1">Check back soon or select another classification filter above.</p>
+        </div>
+      )}
+
+      {/* Atomic Payment Confirmation Modal */}
+      {buyingParcel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <div className="glass-card w-full max-w-lg rounded-3xl border border-amber-500/40 overflow-hidden shadow-2xl space-y-6">
+            <div className="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/60">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  <CreditCard className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Algorand Atomic Payment Authorization</h3>
+                  <p className="text-xs text-slate-400">Atomic ALGO Payment & Title Deed Handover Protocol</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setBuyingParcel(null)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5 pt-0">
+              {confirmedTxId ? (
+                <div className="py-4 text-center space-y-4">
+                  <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto" />
+                  <div>
+                    <h4 className="text-lg font-bold text-white">Payment Successful & Title Handed Over!</h4>
+                    <p className="text-xs text-slate-300 mt-1">
+                      You are now the official verified titleholder of <strong>{buyingParcel.parcelId}</strong>.
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 font-mono text-xs text-amber-300 break-all">
+                    Tx ID: {confirmedTxId}
+                  </div>
+
+                  <button
+                    onClick={() => setBuyingParcel(null)}
+                    className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md cursor-pointer"
+                  >
+                    Close & View In My Portfolio
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {/* Property Payment Receipt Specs */}
+                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3 font-mono text-xs">
+                    <div className="flex justify-between py-1 border-b border-slate-800">
+                      <span className="text-slate-400">Parcel ID</span>
+                      <span className="font-bold text-white">{buyingParcel.parcelId}</span>
+                    </div>
+
+                    <div className="flex justify-between py-1 border-b border-slate-800">
+                      <span className="text-slate-400">Location</span>
+                      <span className="text-slate-300 truncate max-w-[200px]">{buyingParcel.location}</span>
+                    </div>
+
+                    <div className="flex justify-between py-1 border-b border-slate-800">
+                      <span className="text-slate-400">Seller Wallet</span>
+                      <span className="text-amber-300">
+                        {buyingParcel.owner.slice(0, 6)}...{buyingParcel.owner.slice(-4)}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between py-1 border-b border-slate-800">
+                      <span className="text-slate-400">Buyer Wallet</span>
+                      <span className="text-emerald-300">
+                        {connectedAddress
+                          ? `${connectedAddress.slice(0, 6)}...${connectedAddress.slice(-4)}`
+                          : 'BUYER_ACTIVE_WALLET'}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between py-2 pt-3 border-t border-slate-800 text-sm">
+                      <span className="text-slate-300 font-bold font-sans">Total Payment Amount</span>
+                      <div className="text-right">
+                        <span className="font-extrabold text-amber-400 text-lg">
+                          {(buyingParcel.priceMicroAlgos / 1e6).toLocaleString()}
+                        </span>
+                        <span className="text-xs font-bold text-amber-400 ml-1">ALGO</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-3">
+                    <Wallet className="w-5 h-5 shrink-0 text-amber-400" />
+                    <span>
+                      Clicking <strong>Authorize Payment</strong> transfers <strong>{(buyingParcel.priceMicroAlgos / 1e6).toLocaleString()} ALGO</strong> directly to the seller address and updates smart contract Box Storage in 1 atomic transaction.
+                    </span>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setBuyingParcel(null)}
+                      className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={isProcessingBuy}
+                      onClick={handleConfirmPurchase}
+                      className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-emerald-500 to-teal-500 hover:from-amber-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    >
+                      {isProcessingBuy ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" /> Signing & Transferring ALGO...
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="w-4 h-4" /> Authorize Payment ({(buyingParcel.priceMicroAlgos / 1e6).toLocaleString()} ALGO)
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
