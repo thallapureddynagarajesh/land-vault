@@ -1,55 +1,83 @@
-# land_chain
+# 🛡️ LandVault - Decentralized Blockchain Land Records & IPFS Document Management System
 
-This starter full stack project has been generated using AlgoKit. See below for default getting started instructions.
+**LandVault** is a tamper-proof, transparent, and decentralized land records management platform built on the **Algorand Blockchain**, **AlgoKit**, **Python ARC-4 Smart Contracts**, **Pinata IPFS**, and **React**.
 
-## Setup
+---
 
-### Initial setup
-1. Clone this repository to your local machine.
-2. Ensure [Docker](https://www.docker.com/) is installed and operational. Then, install `AlgoKit` following this [guide](https://github.com/algorandfoundation/algokit-cli#install).
-3. Run `algokit project bootstrap all` in the project directory. This command sets up your environment by installing necessary dependencies, setting up a Python virtual environment, and preparing your `.env` file.
-4. In the case of a smart contract project, execute `algokit generate env-file -a target_network localnet` from the `land_chain-contracts` directory to create a `.env.localnet` file with default configuration for `localnet`.
-5. To build your project, execute `algokit project run build`. This compiles your project and prepares it for running.
-6. For project-specific instructions, refer to the READMEs of the child projects:
-   - Smart Contracts: [land_chain-contracts](projects/land_chain-contracts/README.md)
-   - Frontend Application: [land_chain-frontend](projects/land_chain-frontend/README.md)
+## 🌟 Key Architecture & Features
 
-> This project is structured as a monorepo, refer to the [documentation](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/project/run.md) to learn more about custom command orchestration via `algokit project run`.
+1. **Algorand Smart Contracts (Box Storage)**:
+   - Records immutable land parcel titles (`property_id`, `owner`, `document_type`, `ipfs_cid`, `document_hash`, `location`, `timestamps`).
+   - Zero-rent storage via Algorand AVM ARC-4 Box Storage.
 
-### Subsequently
+2. **Decentralized IPFS Storage (Pinata)**:
+   - Land deeds (PDFs, images, scanned records) are uploaded to **IPFS via Pinata**.
+   - Includes a **Multi-Gateway Fallback Resolver** (`ipfs.io`, `cloudflare-ipfs.com`, `dweb.link`) to bypass Pinata shared public gateway restrictions (`ERR_ID:00023`).
 
-1. If you update to the latest source code and there are new dependencies, you will need to run `algokit project bootstrap all` again.
-2. Follow step 3 above.
+3. **Client-Side AES-256-GCM Document Encryption & Privacy**:
+   - Before uploading to IPFS, documents are encrypted in browser memory using **AES-256-GCM (Web Crypto API)**.
+   - Files stored on IPFS are encrypted ciphertext payloads (`.enc`).
+   - Only authorized parties (**Landowner**, **Buyer**, or **Government Registrar Authority**) can decrypt and view original documents in browser memory.
 
-### Continuous Integration / Continuous Deployment (CI/CD)
+4. **Cryptographic Tamper Verification**:
+   - Automated SHA-256 hash match against Algorand Box Storage. Any altered file triggers `🚨 DOCUMENT MISMATCH DETECTED`.
 
-This project uses [GitHub Actions](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions) to define CI/CD workflows, which are located in the [`.github/workflows`](./.github/workflows) folder. You can configure these actions to suit your project's needs, including CI checks, audits, linting, type checking, testing, and deployments to TestNet.
+5. **Monetized x402 Payment Gateway**:
+   - Integrated `HTTP 402 Payment Required` microtransaction gateway charging commercial third-party API clients & AI bots (`/api/v1/verify-deed`).
 
-For pushes to `main` branch, after the above checks pass, the following deployment actions are performed:
-  - The smart contract(s) are deployed to TestNet using [AlgoNode](https://algonode.io).
-  - The frontend application is deployed to a provider of your choice (Netlify, Vercel, etc.). See [frontend README](frontend/README.md) for more information.
+---
 
-> Please note deployment of smart contracts is done via `algokit deploy` command which can be invoked both via CI as seen on this project, or locally. For more information on how to use `algokit deploy` please see [AlgoKit documentation](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/deploy.md).
+## 🚀 Quick Setup & Local Development
 
-## Tools
+### Prerequisites
+- Node.js (v18+) & Python (v3.12+)
+- Docker (optional for LocalNet) & AlgoKit CLI
 
-This project makes use of Python and React to build Algorand smart contracts and to provide a base project configuration to develop frontends for your Algorand dApps and interactions with smart contracts. The following tools are in use:
+### Running the App
+```bash
+# 1. Navigate to frontend directory
+cd projects/land_chain-frontend
 
-- Algorand, AlgoKit, and AlgoKit Utils
-- Python dependencies including Poetry, Black, Ruff or Flake8, mypy, pytest, and pip-audit
-- React and related dependencies including AlgoKit Utils, Tailwind CSS, daisyUI, use-wallet, npm, jest, playwright, Prettier, ESLint, and Github Actions workflows for build validation
+# 2. Install dependencies
+npm install
 
-### VS Code
+# 3. Start local development server
+npm run dev
+```
 
-It has also been configured to have a productive dev experience out of the box in [VS Code](https://code.visualstudio.com/), see the [backend .vscode](./backend/.vscode) and [frontend .vscode](./frontend/.vscode) folders for more details.
+### Running Smart Contract Unit Tests
+```bash
+cd projects/land_chain-contracts
+poetry run pytest
+```
 
-## Integrating with smart contracts and application clients
+---
 
-Refer to the [land_chain-contracts](projects/land_chain-contracts/README.md) folder for overview of working with smart contracts, [projects/land_chain-frontend](projects/land_chain-frontend/README.md) for overview of the React project and the [projects/land_chain-frontend/contracts](projects/land_chain-frontend/src/contracts/README.md) folder for README on adding new smart contracts from backend as application clients on your frontend. The templates provided in these folders will help you get started.
-When you compile and generate smart contract artifacts, your frontend component will automatically generate typescript application clients from smart contract artifacts and move them to `frontend/src/contracts` folder, see [`generate:app-clients` in package.json](projects/land_chain-frontend/package.json). Afterwards, you are free to import and use them in your frontend application.
+## 🌐 Deploying to Vercel
 
-The frontend starter also provides an example of interactions with your LandContractClient in [`AppCalls.tsx`](projects/land_chain-frontend/src/components/AppCalls.tsx) component by default.
+LandVault is pre-configured for instant Vercel deployment:
+- Configuration: [`projects/land_chain-frontend/vercel.json`](projects/land_chain-frontend/vercel.json)
+- Full deployment guide: [`VERCEL_DEPLOYMENT_GUIDE.md`](VERCEL_DEPLOYMENT_GUIDE.md)
 
-## Next Steps
+---
 
-You can take this project and customize it to build your own decentralized applications on Algorand. Make sure to understand how to use AlgoKit and how to write smart contracts for Algorand before you start.
+## 📁 Repository Structure
+
+```text
+land_chain/
+├── projects/
+│   ├── land_chain-contracts/      # Python ARC-4 Smart Contracts (Puya / AlgoPy)
+│   │   ├── smart_contracts/land_contract/contract.py
+│   │   └── tests/land_contract_test.py
+│   │
+│   └── land_chain-frontend/       # React + Vite + TypeScript Frontend DApp
+│       ├── src/
+│       │   ├── components/        # UploadLandDocument, LandRecordDetails, LandVerification...
+│       │   ├── services/          # ipfs.ts, encryption.ts, x402Gateway.ts
+│       │   ├── interfaces/        # land.ts
+│       │   └── Home.tsx
+│       └── vercel.json
+│
+├── VERCEL_DEPLOYMENT_GUIDE.md
+└── README.md
+```
