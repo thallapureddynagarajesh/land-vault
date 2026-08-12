@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd projects/land_chain-frontend && npm install && npm run build",
+  "outputDirectory": "projects/land_chain-frontend/dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
