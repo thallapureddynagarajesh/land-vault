@@ -82,15 +82,15 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
         { type: 'application/octet-stream' }
       )
 
-      // Step 2: x402 HTTP 402 Storage Fee Payment (0.1 ALGO / 100,000 microAlgos)
+      // Step 2: x402 HTTP 402 Storage Fee Payment (0.005 ALGO / 5,000 microAlgos)
       setStep('PAYING_X402')
-      setStatusMessage('Processing x402 HTTP 402 Storage Microtransaction Challenge (0.1 ALGO / 100,000 microAlgos)...')
+      setStatusMessage('Processing x402 HTTP 402 Storage Microtransaction Challenge (0.005 ALGO / 5,000 microAlgos)...')
       const paymentProof = await processX402StoragePayment(ownerAddress.trim(), propertyId.trim().toUpperCase())
       setX402ProofTx(paymentProof.txHash)
 
       // Step 3: Upload Encrypted payload to IPFS Pinata
       setStep('UPLOADING_IPFS')
-      setStatusMessage(`[x402 Verified: 0.1 ALGO paid] Uploading encrypted payload to IPFS...`)
+      setStatusMessage(`[x402 Verified: 0.005 ALGO paid] Uploading encrypted payload to IPFS...`)
       const ipfsResult = await uploadDocumentToIPFS(encryptedFile)
 
       setStagedCid(ipfsResult.cid)
@@ -315,7 +315,7 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
                     </div>
                   ) : (
                     <>
-                      <CreditCard className="w-4 h-4" /> Pay 0.1 ALGO (x402 Storage Fee) & Store Document
+                      <CreditCard className="w-4 h-4" /> Pay 0.005 ALGO (x402 Storage Fee) & Store Document
                     </>
                   )}
                 </button>
@@ -344,10 +344,10 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
 
                 {x402ProofTx && (
                   <div>
-                    <span className="text-slate-500 block text-[11px]">x402 HTTP 402 Payment Receipt (0.1 ALGO)</span>
+                    <span className="text-slate-500 block text-[11px]">x402 HTTP 402 Payment Receipt (0.005 ALGO)</span>
                     <div className="p-2.5 rounded-xl bg-slate-950 border border-emerald-500/30 text-emerald-300 break-all text-[11px] flex items-center justify-between">
                       <span>{x402ProofTx}</span>
-                      <span className="font-bold text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded text-emerald-400">0.1 ALGO Paid</span>
+                      <span className="font-bold text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded text-emerald-400">0.005 ALGO Paid</span>
                     </div>
                   </div>
                 )}

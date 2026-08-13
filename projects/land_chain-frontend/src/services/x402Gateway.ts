@@ -19,16 +19,16 @@ export const X402_PRICING_TABLE: Record<string, X402EndpointConfig> = {
     endpoint: '/api/v1/store-document',
     name: 'IPFS Document Pinning & Algorand Ledger Storage',
     description: 'Pins encrypted document payload to IPFS and seals metadata into Algorand Box Storage.',
-    priceAlgos: 0.1,
-    priceMicroAlgos: 100000, // 0.1 ALGO (~$0.02)
+    priceAlgos: 0.005,
+    priceMicroAlgos: 5000, // 0.005 ALGO (~$0.001)
     targetAudience: 'Landowners, Real Estate Developers, Conveyancers, AI Agents',
   },
   '/api/v1/verify-deed': {
     endpoint: '/api/v1/verify-deed',
     name: 'Deed Integrity & Title Verification',
     description: 'Cryptographic SHA-256 hash match against Algorand Box Storage.',
-    priceAlgos: 0.1,
-    priceMicroAlgos: 100000, // 0.1 ALGO (~$0.02)
+    priceAlgos: 0.005,
+    priceMicroAlgos: 5000, // 0.005 ALGO (~$0.001)
     targetAudience: 'Banks, Legal Auditors, Conveyancers, AI Agents',
   },
   '/api/v1/ipfs-decrypt-token': {
@@ -97,7 +97,7 @@ export function createX402PaymentChallenge(
 
   return {
     status: 402,
-    message: `Payment Required: Endpoint ${config.endpoint} requires ${config.priceAlgos} ALGO (100,000 microAlgos) microtransaction fee. Submit proof header 'X-Payment-Proof: <TX_HASH>'.`,
+    message: `Payment Required: Endpoint ${config.endpoint} requires ${config.priceAlgos} ALGO (5,000 microAlgos) microtransaction fee. Submit proof header 'X-Payment-Proof: <TX_HASH>'.`,
     endpoint: config.endpoint,
     priceAlgos: config.priceAlgos,
     priceMicroAlgos: config.priceMicroAlgos,
@@ -113,7 +113,7 @@ export function createX402PaymentChallenge(
 }
 
 /**
- * Authorize and process 0.1 ALGO x402 storage payment microtransaction
+ * Authorize and process 0.005 ALGO x402 storage payment microtransaction
  */
 export async function processX402StoragePayment(
   payerAddress: string,
@@ -127,8 +127,8 @@ export async function processX402StoragePayment(
 
   return {
     txHash,
-    amountMicroAlgos: 100000, // 0.1 ALGO
-    payerAddress: payerAddress || '58X7K2A9P3M8V1N4Q6R0T9W2Y5Z8B1C4D7E0F3G6H9J2',
+    amountMicroAlgos: 5000, // 0.005 ALGO
+    payerAddress: payerAddress || 'XC7L7DOGVARDIIZWIWPWC7KINFRJZHMPNQZQGEMUFU5XLJXYJKNQPY3UM4',
     receiverAddress,
     endpoint: '/api/v1/store-document',
     timestamp: Math.floor(Date.now() / 1000),
@@ -140,8 +140,8 @@ export async function processX402StoragePayment(
  */
 export async function verifyX402PaymentProof(
   txHash: string,
-  expectedMicroAlgos: number = 100000,
-  receiverAddress: string = 'GOV_REVENUE_COLLECTION_WALLET_ADDRESS'
+  expectedMicroAlgos: number = 5000,
+  receiverAddress: string = DEFAULT_TREASURY_ADDRESS
 ): Promise<{ success: boolean; error?: string }> {
   if (!txHash || txHash.trim().length < 15) {
     return { success: false, error: 'Invalid or missing X-Payment-Proof transaction hash header.' }

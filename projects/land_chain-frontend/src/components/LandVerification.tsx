@@ -478,7 +478,7 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
                   disabled={isStoringDoc}
                   className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-emerald-500 to-teal-500 hover:from-amber-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 cursor-pointer disabled:opacity-50"
                 >
-                  {isStoringDoc ? 'Processing 0.1 ALGO x402 Fee & Sealing Document...' : '💳 Authorize 0.1 ALGO (x402 Fee) & Store Document'}
+                  {isStoringDoc ? 'Processing 0.005 ALGO x402 Fee & Sealing Document...' : '💳 Authorize 0.005 ALGO (x402 Fee) & Store Document'}
                 </button>
               </div>
             </form>
