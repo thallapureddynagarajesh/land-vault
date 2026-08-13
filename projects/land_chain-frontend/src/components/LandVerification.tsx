@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Search, ShieldCheck, CheckCircle2, FileText, MapPin, ExternalLink, Calendar, History, QrCode, AlertCircle, Copy, Check, UploadCloud, FileCheck2, AlertTriangle, RefreshCw } from 'lucide-react'
+import { Search, ShieldCheck, CheckCircle2, FileText, MapPin, ExternalLink, Calendar, History, QrCode, AlertCircle, Copy, Check, UploadCloud, FileCheck2, AlertTriangle, RefreshCw, Trash2 } from 'lucide-react'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { LandParcel } from '../interfaces/land'
 import { LandRecordDetails } from './LandRecordDetails'
@@ -43,6 +43,37 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
   const [storeDocHash, setStoreDocHash] = useState('')
   const [storeFileName, setStoreFileName] = useState('')
   const [isStoringDoc, setIsStoringDoc] = useState(false)
+  // Delete Document from Ledger modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteParcelInput, setDeleteParcelInput] = useState('')
+  const [isDeletingDoc, setIsDeletingDoc] = useState(false)
+
+  const handleDeleteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!deleteParcelInput.trim()) return
+
+    const parcelIdToDelete = deleteParcelInput.trim().toUpperCase()
+    const target = parcels.find((p) => p.parcelId.toUpperCase() === parcelIdToDelete)
+
+    if (!target) {
+      alert(`⚠️ Parcel ID '${parcelIdToDelete}' was not found in the ledger database.`)
+      return
+    }
+
+    if (window.confirm(`Are you sure you want to delete and deregister parcel '${parcelIdToDelete}' from Algorand Box Storage?`)) {
+      if (onDeleteLand) {
+        setIsDeletingDoc(true)
+        onDeleteLand(parcelIdToDelete)
+        setIsDeletingDoc(false)
+        setShowDeleteModal(false)
+        setDeleteParcelInput('')
+        if (selectedParcel?.parcelId.toUpperCase() === parcelIdToDelete) {
+          setSelectedParcel(null)
+        }
+        alert(`✅ Parcel '${parcelIdToDelete}' has been successfully deleted and deregistered from Algorand Box Storage.`)
+      }
+    }
+  }
 
   const handleStoreSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -207,6 +238,14 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
             >
               <UploadCloud className="w-4 h-4 text-amber-400" />
               Store Document in Ledger
+            </button>
+
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="px-5 py-3.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-semibold text-sm border border-rose-500/30 flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap shadow-md"
+            >
+              <Trash2 className="w-4 h-4 text-rose-400" />
+              Delete Document
             </button>
           </div>
 
@@ -495,6 +534,81 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
                   className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-emerald-500 to-teal-500 hover:from-amber-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 cursor-pointer disabled:opacity-50"
                 >
                   {isStoringDoc ? 'Processing 0.005 ALGO x402 Fee & Sealing Document...' : '💳 Authorize 0.005 ALGO (x402 Fee) & Store Document'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Document from Ledger Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="glass-card max-w-lg w-full p-6 sm:p-8 rounded-3xl border border-rose-500/40 space-y-6 bg-slate-900/95 relative animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                  <Trash2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Delete Document from Ledger</h3>
+                  <p className="text-xs text-rose-400 font-mono">Algorand Box Storage Deregistration</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="text-slate-400 hover:text-white p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 text-xs font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5">
+              <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+              <p>
+                <strong>SECURITY WARNING:</strong> Deleting a document removes its title record and SHA-256 hash from Algorand Box Storage. Only the land owner or registrar authority can perform this action.
+              </p>
+            </div>
+
+            <form onSubmit={handleDeleteSubmit} className="space-y-4">
+              <div>
+                <label className="text-xs text-slate-300 font-semibold block mb-1.5">Target Parcel ID to Delete</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Enter Parcel ID (e.g. LAND-001 or PRCL-2026-8801)..."
+                  value={deleteParcelInput}
+                  onChange={(e) => setDeleteParcelInput(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl glass-input text-white text-xs placeholder-slate-500 font-mono uppercase"
+                />
+              </div>
+
+              {parcels.length > 0 && (
+                <div>
+                  <span className="text-[11px] text-slate-400 block mb-1">Quick Select Active Record:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {parcels.map((p) => (
+                      <button
+                        type="button"
+                        key={p.parcelId}
+                        onClick={() => setDeleteParcelInput(p.parcelId)}
+                        className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-mono border border-slate-700 cursor-pointer"
+                      >
+                        {p.parcelId}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isDeletingDoc || !deleteParcelInput.trim()}
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-rose-600 via-red-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-extrabold text-xs shadow-lg shadow-rose-500/20 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {isDeletingDoc ? 'Deleting from Box Storage...' : 'Confirm & Delete Document from Ledger'}
                 </button>
               </div>
             </form>
