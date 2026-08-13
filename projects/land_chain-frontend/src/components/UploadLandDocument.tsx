@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { UploadCloud, ShieldCheck, FileCode2, CheckCircle2, AlertTriangle, RefreshCw, Hash, MapPin, User, FileCheck, ExternalLink, Layers, ArrowRight, Lock, CreditCard } from 'lucide-react'
+import { useWallet } from '@txnlab/use-wallet-react'
 import { LandParcel } from '../interfaces/land'
 import { uploadDocumentToIPFS, validateLandDocumentFile } from '../services/ipfs'
 import { encryptFileForIPFS } from '../services/encryption'
@@ -18,6 +19,8 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
   connectedAddress,
   onSuccessNavigate,
 }) => {
+  const { transactionSigner } = useWallet()
+
   // Form State
   const [propertyId, setPropertyId] = useState('LAND-001')
   const [ownerAddress, setOwnerAddress] = useState(connectedAddress || 'XC7L7DOGVARDIIZWIWPWC7KINFRJZHMPNQZQGEMUFU5XLJXYJKNQPY3UM4')
@@ -85,7 +88,7 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
       // Step 2: x402 HTTP 402 Storage Fee Payment (0.005 ALGO / 5,000 microAlgos)
       setStep('PAYING_X402')
       setStatusMessage('Processing x402 HTTP 402 Storage Microtransaction Challenge (0.005 ALGO / 5,000 microAlgos)...')
-      const paymentProof = await processX402StoragePayment(ownerAddress.trim(), propertyId.trim().toUpperCase())
+      const paymentProof = await processX402StoragePayment(ownerAddress.trim(), propertyId.trim().toUpperCase(), transactionSigner)
       setX402ProofTx(paymentProof.txHash)
 
       // Step 3: Upload Encrypted payload to IPFS Pinata

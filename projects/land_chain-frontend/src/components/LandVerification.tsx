@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Search, ShieldCheck, CheckCircle2, FileText, MapPin, ExternalLink, Calendar, History, QrCode, AlertCircle, Copy, Check, UploadCloud, FileCheck2, AlertTriangle, RefreshCw } from 'lucide-react'
+import { useWallet } from '@txnlab/use-wallet-react'
 import { LandParcel } from '../interfaces/land'
 import { LandRecordDetails } from './LandRecordDetails'
 import { processX402StoragePayment } from '../services/x402Gateway'
@@ -19,6 +20,7 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
   connectedAddress,
   userRole = 'citizen',
 }) => {
+  const { transactionSigner } = useWallet()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedParcel, setSelectedParcel] = useState<LandParcel | null>(parcels[0] || null)
   const [copiedHash, setCopiedHash] = useState(false)
@@ -45,7 +47,7 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
     if (!storePin || !storeLocation || !storeArea || !storeOwner || !storeDocHash) return
 
     setIsStoringDoc(true)
-    await processX402StoragePayment(storeOwner.trim(), storePin.trim().toUpperCase())
+    await processX402StoragePayment(storeOwner.trim(), storePin.trim().toUpperCase(), transactionSigner)
 
     if (onRegisterLand) {
       onRegisterLand({
