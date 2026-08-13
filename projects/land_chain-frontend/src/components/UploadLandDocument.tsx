@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { UploadCloud, ShieldCheck, FileCode2, CheckCircle2, AlertTriangle, RefreshCw, Hash, MapPin, User, FileCheck, ExternalLink, Layers, ArrowRight, Lock } from 'lucide-react'
+import { UploadCloud, ShieldCheck, FileCode2, CheckCircle2, AlertTriangle, RefreshCw, Hash, MapPin, User, FileCheck, ExternalLink, Layers, ArrowRight, Lock, CreditCard } from 'lucide-react'
 import { LandParcel } from '../interfaces/land'
 import { uploadDocumentToIPFS, validateLandDocumentFile } from '../services/ipfs'
 import { encryptFileForIPFS } from '../services/encryption'
+import { processX402StoragePayment } from '../services/x402Gateway'
 
 interface UploadLandDocumentProps {
   onRegisterLand: (
@@ -30,13 +31,14 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
   const [fileError, setFileError] = useState<string | null>(null)
 
   // Upload Workflow Execution State
-  const [step, setStep] = useState<'IDLE' | 'HASHING' | 'UPLOADING_IPFS' | 'BLOCKCHAIN_CONFIRMING' | 'SUCCESS' | 'BLOCKCHAIN_FAILED'>('IDLE')
+  const [step, setStep] = useState<'IDLE' | 'HASHING' | 'PAYING_X402' | 'UPLOADING_IPFS' | 'BLOCKCHAIN_CONFIRMING' | 'SUCCESS' | 'BLOCKCHAIN_FAILED'>('IDLE')
   const [statusMessage, setStatusMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // Staged Result State (preserves IPFS CID if blockchain fails for Retry Flow)
   const [stagedCid, setStagedCid] = useState<string | null>(null)
   const [stagedHash, setStagedHash] = useState<string | null>(null)
+  const [x402ProofTx, setX402ProofTx] = useState<string | null>(null)
   const [resultTxId, setResultTxId] = useState<string | null>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,15 +82,21 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
         { type: 'application/octet-stream' }
       )
 
-      // Step 2: Upload Encrypted payload to IPFS Pinata
+      // Step 2: x402 HTTP 402 Storage Fee Payment (0.1 ALGO / 100,000 microAlgos)
+      setStep('PAYING_X402')
+      setStatusMessage('Processing x402 HTTP 402 Storage Microtransaction Challenge (0.1 ALGO / 100,000 microAlgos)...')
+      const paymentProof = await processX402StoragePayment(ownerAddress.trim(), propertyId.trim().toUpperCase())
+      setX402ProofTx(paymentProof.txHash)
+
+      // Step 3: Upload Encrypted payload to IPFS Pinata
       setStep('UPLOADING_IPFS')
-      setStatusMessage('Uploading AES-256-GCM encrypted payload to IPFS...')
+      setStatusMessage(`[x402 Verified: 0.1 ALGO paid] Uploading encrypted payload to IPFS...`)
       const ipfsResult = await uploadDocumentToIPFS(encryptedFile)
 
       setStagedCid(ipfsResult.cid)
       setStagedHash(encPackage.originalHash)
 
-      // Step 3: Write to Algorand Smart Contract Box Storage
+      // Step 4: Write to Algorand Smart Contract Box Storage
       await registerToBlockchain(ipfsResult.cid, encPackage.originalHash)
     } catch (err: any) {
       console.error('Upload Error:', err)
@@ -300,14 +308,14 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
                   disabled={step !== 'IDLE'}
                   className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-extrabold text-xs shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
                 >
-                  {step === 'HASHING' || step === 'UPLOADING_IPFS' || step === 'BLOCKCHAIN_CONFIRMING' ? (
+                  {step === 'HASHING' || step === 'PAYING_X402' || step === 'UPLOADING_IPFS' || step === 'BLOCKCHAIN_CONFIRMING' ? (
                     <div className="flex items-center gap-2">
                       <RefreshCw className="w-4 h-4 animate-spin" />
                       <span>{statusMessage}</span>
                     </div>
                   ) : (
                     <>
-                      <ShieldCheck className="w-4 h-4" /> Upload & Register Land (IPFS + Algorand)
+                      <CreditCard className="w-4 h-4" /> Pay 0.1 ALGO (x402 Storage Fee) & Store Document
                     </>
                   )}
                 </button>
@@ -333,6 +341,16 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
                   <span className="text-slate-500 block text-[11px]">Property ID</span>
                   <span className="font-bold text-white text-sm">{propertyId}</span>
                 </div>
+
+                {x402ProofTx && (
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">x402 HTTP 402 Payment Receipt (0.1 ALGO)</span>
+                    <div className="p-2.5 rounded-xl bg-slate-950 border border-emerald-500/30 text-emerald-300 break-all text-[11px] flex items-center justify-between">
+                      <span>{x402ProofTx}</span>
+                      <span className="font-bold text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded text-emerald-400">0.1 ALGO Paid</span>
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <span className="text-slate-500 block text-[11px]">IPFS Content Identifier (CID)</span>

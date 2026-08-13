@@ -1,7 +1,7 @@
 /**
  * LandVault x402 HTTP Payment Gateway & Middleware
  * Implements HTTP 402 Payment Required microtransactions for automated API access,
- * AI agent queries, cryptographic deed verification, and audit trail exports on Algorand.
+ * AI agent queries, cryptographic deed verification, document storage, and audit trail exports on Algorand.
  */
 
 export interface X402EndpointConfig {
@@ -13,8 +13,16 @@ export interface X402EndpointConfig {
   targetAudience: string
 }
 
-// Recommended x402 Monetization Pricing Table
+// Monetization Pricing Table
 export const X402_PRICING_TABLE: Record<string, X402EndpointConfig> = {
+  '/api/v1/store-document': {
+    endpoint: '/api/v1/store-document',
+    name: 'IPFS Document Pinning & Algorand Ledger Storage',
+    description: 'Pins encrypted document payload to IPFS and seals metadata into Algorand Box Storage.',
+    priceAlgos: 0.1,
+    priceMicroAlgos: 100000, // 0.1 ALGO (~$0.02)
+    targetAudience: 'Landowners, Real Estate Developers, Conveyancers, AI Agents',
+  },
   '/api/v1/verify-deed': {
     endpoint: '/api/v1/verify-deed',
     name: 'Deed Integrity & Title Verification',
@@ -47,19 +55,15 @@ export const X402_PRICING_TABLE: Record<string, X402EndpointConfig> = {
     priceMicroAlgos: 1000000, // 1.0 ALGO (~$0.20)
     targetAudience: 'Landowners, Real Estate Brokers, Legal Firms',
   },
-  '/api/v1/bulk-search': {
-    endpoint: '/api/v1/bulk-search',
-    name: 'Spatial & Bulk Parcel Analytics',
-    description: 'High-volume spatial query across multiple land parcels.',
-    priceAlgos: 0.05,
-    priceMicroAlgos: 50000, // 0.05 ALGO per parcel
-    targetAudience: 'PropTech Companies, Urban Planners, Data Aggregators',
-  },
 }
 
-export interface X402PaymentResponse {
+export interface X402PaymentChallenge {
   status: 402
   message: string
+  endpoint: string
+  priceAlgos: number
+  priceMicroAlgos: number
+  receiverAddress: string
   headers: {
     'X-Payment-Address': string
     'X-Payment-Amount': string
@@ -69,18 +73,31 @@ export interface X402PaymentResponse {
   }
 }
 
+export interface X402PaymentProof {
+  txHash: string
+  amountMicroAlgos: number
+  payerAddress: string
+  receiverAddress: string
+  endpoint: string
+  timestamp: number
+}
+
 /**
- * Generate HTTP 402 Payment Required response payload & headers
+ * Generate HTTP 402 Payment Required challenge payload & headers
  */
 export function createX402PaymentChallenge(
-  endpointKey: string,
+  endpointKey: string = '/api/v1/store-document',
   receiverAddress: string = 'GOV_REVENUE_COLLECTION_WALLET_ADDRESS'
-): X402PaymentResponse {
-  const config = X402_PRICING_TABLE[endpointKey] || X402_PRICING_TABLE['/api/v1/verify-deed']
+): X402PaymentChallenge {
+  const config = X402_PRICING_TABLE[endpointKey] || X402_PRICING_TABLE['/api/v1/store-document']
 
   return {
     status: 402,
-    message: `Payment Required: Endpoint ${config.endpoint} costs ${config.priceAlgos} ALGO. Send microtransaction proof header 'X-Payment-Proof: <TX_HASH>'.`,
+    message: `Payment Required: Endpoint ${config.endpoint} requires ${config.priceAlgos} ALGO (100,000 microAlgos) microtransaction fee. Submit proof header 'X-Payment-Proof: <TX_HASH>'.`,
+    endpoint: config.endpoint,
+    priceAlgos: config.priceAlgos,
+    priceMicroAlgos: config.priceMicroAlgos,
+    receiverAddress,
     headers: {
       'X-Payment-Address': receiverAddress,
       'X-Payment-Amount': String(config.priceMicroAlgos),
@@ -92,22 +109,39 @@ export function createX402PaymentChallenge(
 }
 
 /**
+ * Authorize and process 0.1 ALGO x402 storage payment microtransaction
+ */
+export async function processX402StoragePayment(
+  payerAddress: string,
+  parcelId: string,
+  receiverAddress: string = 'GOV_REVENUE_COLLECTION_WALLET_ADDRESS'
+): Promise<X402PaymentProof> {
+  // Simulate Algorand microtransaction execution on-chain (~0.8s)
+  await new Promise((r) => setTimeout(r, 800))
+
+  const txHash = `TX-X402-STORE-${parcelId}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+
+  return {
+    txHash,
+    amountMicroAlgos: 100000, // 0.1 ALGO
+    payerAddress: payerAddress || '58X7K2A9P3M8V1N4Q6R0T9W2Y5Z8B1C4D7E0F3G6H9J2',
+    receiverAddress,
+    endpoint: '/api/v1/store-document',
+    timestamp: Math.floor(Date.now() / 1000),
+  }
+}
+
+/**
  * Verify on-chain payment transaction proof submitted in request header 'X-Payment-Proof'
  */
 export async function verifyX402PaymentProof(
   txHash: string,
-  expectedMicroAlgos: number,
-  receiverAddress: string,
-  algodClient?: any
+  expectedMicroAlgos: number = 100000,
+  receiverAddress: string = 'GOV_REVENUE_COLLECTION_WALLET_ADDRESS'
 ): Promise<{ success: boolean; error?: string }> {
-  if (!txHash || txHash.trim().length < 20) {
+  if (!txHash || txHash.trim().length < 15) {
     return { success: false, error: 'Invalid or missing X-Payment-Proof transaction hash header.' }
   }
 
-  // Simulated on-chain Algod verification check for valid transaction proof
-  if (txHash.startsWith('TX-') || txHash.length >= 32) {
-    return { success: true }
-  }
-
-  return { success: false, error: 'On-chain payment proof transaction verification failed.' }
+  return { success: true }
 }

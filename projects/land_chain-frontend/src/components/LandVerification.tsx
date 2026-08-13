@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Search, ShieldCheck, CheckCircle2, FileText, MapPin, ExternalLink, Calendar, History, QrCode, AlertCircle, Copy, Check, UploadCloud, FileCheck2, AlertTriangle, RefreshCw } from 'lucide-react'
 import { LandParcel } from '../interfaces/land'
 import { LandRecordDetails } from './LandRecordDetails'
+import { processX402StoragePayment } from '../services/x402Gateway'
 
 interface LandVerificationProps {
   parcels: LandParcel[]
@@ -39,50 +40,50 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
   const [storeFileName, setStoreFileName] = useState('')
   const [isStoringDoc, setIsStoringDoc] = useState(false)
 
-  const handleStoreSubmit = (e: React.FormEvent) => {
+  const handleStoreSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!storePin || !storeLocation || !storeArea || !storeOwner || !storeDocHash) return
 
     setIsStoringDoc(true)
-    setTimeout(() => {
-      if (onRegisterLand) {
-        onRegisterLand({
-          parcelId: storePin.trim().toUpperCase(),
-          location: storeLocation.trim(),
-          areaSqft: Number(storeArea),
-          propertyType: 'Residential',
-          documentType: 'Sale Deed',
-          owner: storeOwner.trim(),
-          ipfsCid: `Qm${storeDocHash.trim().slice(0, 44)}`,
-          documentHash: storeDocHash.trim(),
-        })
-      }
-      setIsStoringDoc(false)
-      setShowStoreModal(false)
+    await processX402StoragePayment(storeOwner.trim(), storePin.trim().toUpperCase())
 
-      const newP: LandParcel = {
+    if (onRegisterLand) {
+      onRegisterLand({
         parcelId: storePin.trim().toUpperCase(),
         location: storeLocation.trim(),
         areaSqft: Number(storeArea),
         propertyType: 'Residential',
         documentType: 'Sale Deed',
         owner: storeOwner.trim(),
-        isApproved: true,
-        isForSale: false,
-        priceMicroAlgos: 0,
         ipfsCid: `Qm${storeDocHash.trim().slice(0, 44)}`,
         documentHash: storeDocHash.trim(),
-        createdAt: Math.floor(Date.now() / 1000),
-        lastTransferAt: Math.floor(Date.now() / 1000),
-      }
-      setSelectedParcel(newP)
-      setStorePin('')
-      setStoreLocation('')
-      setStoreArea('')
-      setStoreOwner('')
-      setStoreDocHash('')
-      setStoreFileName('')
-    }, 800)
+      })
+    }
+    setIsStoringDoc(false)
+    setShowStoreModal(false)
+
+    const newP: LandParcel = {
+      parcelId: storePin.trim().toUpperCase(),
+      location: storeLocation.trim(),
+      areaSqft: Number(storeArea),
+      propertyType: 'Residential',
+      documentType: 'Sale Deed',
+      owner: storeOwner.trim(),
+      isApproved: true,
+      isForSale: false,
+      priceMicroAlgos: 0,
+      ipfsCid: `Qm${storeDocHash.trim().slice(0, 44)}`,
+      documentHash: storeDocHash.trim(),
+      createdAt: Math.floor(Date.now() / 1000),
+      lastTransferAt: Math.floor(Date.now() / 1000),
+    }
+    setSelectedParcel(newP)
+    setStorePin('')
+    setStoreLocation('')
+    setStoreArea('')
+    setStoreOwner('')
+    setStoreDocHash('')
+    setStoreFileName('')
   }
 
   const [searchError, setSearchError] = useState<string | null>(null)
@@ -475,9 +476,9 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
                 <button
                   type="submit"
                   disabled={isStoringDoc}
-                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-emerald-500 to-teal-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-emerald-500 to-teal-500 hover:from-amber-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 cursor-pointer disabled:opacity-50"
                 >
-                  {isStoringDoc ? 'Sealing Document into Algorand Box Storage...' : '🔒 Seal & Store Document in Ledger'}
+                  {isStoringDoc ? 'Processing 0.1 ALGO x402 Fee & Sealing Document...' : '💳 Authorize 0.1 ALGO (x402 Fee) & Store Document'}
                 </button>
               </div>
             </form>
