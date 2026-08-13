@@ -22,7 +22,7 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
   connectedAddress,
   userRole = 'citizen',
 }) => {
-  const { transactionSigner } = useWallet()
+  const { activeWallet, transactionSigner } = useWallet()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedParcel, setSelectedParcel] = useState<LandParcel | null>(parcels[0] || null)
   const [copiedHash, setCopiedHash] = useState(false)
@@ -86,7 +86,8 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
 
     try {
       setIsStoringDoc(true)
-      await processX402StoragePayment(storeOwner.trim(), storePin.trim().toUpperCase(), transactionSigner)
+      const walletOrSigner = activeWallet || transactionSigner
+      await processX402StoragePayment(storeOwner.trim(), storePin.trim().toUpperCase(), walletOrSigner)
 
       if (onRegisterLand) {
         onRegisterLand({

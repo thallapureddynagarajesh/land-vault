@@ -19,7 +19,7 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
   connectedAddress,
   onSuccessNavigate,
 }) => {
-  const { transactionSigner } = useWallet()
+  const { activeWallet, transactionSigner } = useWallet()
 
   // Form State
   const [propertyId, setPropertyId] = useState('LAND-001')
@@ -93,7 +93,8 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
       // Step 2: x402 HTTP 402 Storage Fee Payment (0.005 ALGO / 5,000 microAlgos)
       setStep('PAYING_X402')
       setStatusMessage('Processing x402 HTTP 402 Storage Microtransaction Challenge (0.005 ALGO / 5,000 microAlgos)...')
-      const paymentProof = await processX402StoragePayment(ownerAddress.trim(), propertyId.trim().toUpperCase(), transactionSigner)
+      const walletOrSigner = activeWallet || transactionSigner
+      const paymentProof = await processX402StoragePayment(ownerAddress.trim(), propertyId.trim().toUpperCase(), walletOrSigner)
       setX402ProofTx(paymentProof.txHash)
 
       // Step 3: Upload Encrypted payload to IPFS Pinata
