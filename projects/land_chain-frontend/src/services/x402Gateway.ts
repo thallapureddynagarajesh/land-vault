@@ -157,18 +157,46 @@ export async function processX402StoragePayment(
     suggestedParams,
   })
 
-  // 3. Sign transaction directly via transactionSigner (opens Pera Wallet)
+  // 3. Sign transaction directly via walletOrSigner (opens Pera Wallet)
   let signedTxns: Uint8Array[] = []
   try {
+    const unsignedBytes = algosdk.encodeUnsignedTransaction(paymentTxn)
+
     if (typeof walletOrSigner === 'function') {
-      signedTxns = await walletOrSigner([paymentTxn], [0])
+      try {
+        signedTxns = await walletOrSigner([paymentTxn], [0])
+      } catch {
+        signedTxns = await walletOrSigner([unsignedBytes], [0])
+      }
     } else if (walletOrSigner && typeof walletOrSigner.signTransactions === 'function') {
-      const unsignedBytes = algosdk.encodeUnsignedTransaction(paymentTxn)
-      signedTxns = await walletOrSigner.signTransactions([unsignedBytes])
+      try {
+        signedTxns = await walletOrSigner.signTransactions([unsignedBytes])
+      } catch {
+        signedTxns = await walletOrSigner.signTransactions([paymentTxn])
+      }
     } else if (walletOrSigner && typeof walletOrSigner.signer === 'function') {
-      signedTxns = await walletOrSigner.signer([paymentTxn], [0])
+      try {
+        signedTxns = await walletOrSigner.signer([paymentTxn], [0])
+      } catch {
+        signedTxns = await walletOrSigner.signer([unsignedBytes], [0])
+      }
+    } else if (walletOrSigner && typeof walletOrSigner.transactionSigner === 'function') {
+      try {
+        signedTxns = await walletOrSigner.transactionSigner([paymentTxn], [0])
+      } catch {
+        signedTxns = await walletOrSigner.transactionSigner([unsignedBytes], [0])
+      }
+    } else if (walletOrSigner && typeof walletOrSigner.signTxns === 'function') {
+      signedTxns = await walletOrSigner.signTxns([unsignedBytes])
+    } else if (walletOrSigner && walletOrSigner.client && typeof walletOrSigner.client.signTransactions === 'function') {
+      signedTxns = await walletOrSigner.client.signTransactions([unsignedBytes])
     } else {
-      throw new Error('No valid wallet signer function provided.')
+      // Direct emergency fallback attempt
+      try {
+        signedTxns = await (walletOrSigner as any)([paymentTxn], [0])
+      } catch {
+        throw new Error('Algorand Wallet Connection required. Please click "Connect Wallet" in the top right menu to connect Pera Wallet.')
+      }
     }
   } catch (signErr: any) {
     console.error('Pera Wallet transaction signing error:', signErr)
