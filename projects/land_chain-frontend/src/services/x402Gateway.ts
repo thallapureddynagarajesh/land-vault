@@ -82,12 +82,16 @@ export interface X402PaymentProof {
   timestamp: number
 }
 
+export const DEFAULT_TREASURY_ADDRESS =
+  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_TREASURY_WALLET_ADDRESS) ||
+  '58X7K2A9P3M8V1N4Q6R0T9W2Y5Z8B1C4D7E0F3G6H9J2'
+
 /**
  * Generate HTTP 402 Payment Required challenge payload & headers
  */
 export function createX402PaymentChallenge(
   endpointKey: string = '/api/v1/store-document',
-  receiverAddress: string = 'GOV_REVENUE_COLLECTION_WALLET_ADDRESS'
+  receiverAddress: string = DEFAULT_TREASURY_ADDRESS
 ): X402PaymentChallenge {
   const config = X402_PRICING_TABLE[endpointKey] || X402_PRICING_TABLE['/api/v1/store-document']
 
@@ -114,7 +118,7 @@ export function createX402PaymentChallenge(
 export async function processX402StoragePayment(
   payerAddress: string,
   parcelId: string,
-  receiverAddress: string = 'GOV_REVENUE_COLLECTION_WALLET_ADDRESS'
+  receiverAddress: string = DEFAULT_TREASURY_ADDRESS
 ): Promise<X402PaymentProof> {
   // Simulate Algorand microtransaction execution on-chain (~0.8s)
   await new Promise((r) => setTimeout(r, 800))
