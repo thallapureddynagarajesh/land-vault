@@ -84,7 +84,7 @@ export interface X402PaymentProof {
 
 export const DEFAULT_TREASURY_ADDRESS =
   (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_TREASURY_WALLET_ADDRESS) ||
-  '58X7K2A9P3M8V1N4Q6R0T9W2Y5Z8B1C4D7E0F3G6H9J2'
+  'XC7L7DOGVARDIIZWIWPWC7KINFRJZHMPNQZQGEMUFU5XLJXYJKNQPY3UM4'
 
 /**
  * Generate HTTP 402 Payment Required challenge payload & headers

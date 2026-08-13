@@ -20,7 +20,7 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
 }) => {
   // Form State
   const [propertyId, setPropertyId] = useState('LAND-001')
-  const [ownerAddress, setOwnerAddress] = useState(connectedAddress || '58X7K2A9P3M8V1N4Q6R0T9W2Y5Z8B1C4D7E0F3G6H9J2')
+  const [ownerAddress, setOwnerAddress] = useState(connectedAddress || 'XC7L7DOGVARDIIZWIWPWC7KINFRJZHMPNQZQGEMUFU5XLJXYJKNQPY3UM4')
   const [location, setLocation] = useState('Vijayawada, Plot 42')
   const [areaSqft, setAreaSqft] = useState('3500')
   const [documentType, setDocumentType] = useState('Sale Deed')
