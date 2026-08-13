@@ -12,18 +12,20 @@ interface UploadLandDocumentProps {
   ) => void
   connectedAddress: string | null
   onSuccessNavigate?: (parcelId: string) => void
+  onConnectWalletClick?: () => void
 }
 
 export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
   onRegisterLand,
   connectedAddress,
   onSuccessNavigate,
+  onConnectWalletClick,
 }) => {
-  const { activeWallet, transactionSigner } = useWallet()
+  const { activeAddress, activeWallet, transactionSigner } = useWallet()
 
   // Form State
   const [propertyId, setPropertyId] = useState('LAND-001')
-  const [ownerAddress, setOwnerAddress] = useState(connectedAddress || 'XC7L7DOGVARDIIZWIWPWC7KINFRJZHMPNQZQGEMUFU5XLJXYJKNQPY3UM4')
+  const [ownerAddress, setOwnerAddress] = useState(connectedAddress || activeAddress || 'XC7L7DOGVARDIIZWIWPWC7KINFRJZHMPNQZQGEMUFU5XLJXYJKNQPY3UM4')
   const [location, setLocation] = useState('Vijayawada, Plot 42')
   const [areaSqft, setAreaSqft] = useState('3500')
   const [documentType, setDocumentType] = useState('Sale Deed')
@@ -73,8 +75,11 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
       return
     }
 
-    if (!transactionSigner) {
-      setErrorMessage('⚠️ Algorand Wallet Connection Required: Please click the "Connect Wallet" button at the top right to connect your Pera or Defly wallet. The 0.005 ALGO x402 storage fee will be charged directly from your wallet balance on-chain.')
+    const payerAddressToUse = connectedAddress || activeAddress || ownerAddress.trim()
+
+    if (!transactionSigner && !activeWallet) {
+      if (onConnectWalletClick) onConnectWalletClick()
+      setErrorMessage('⚠️ Algorand Wallet Connection Required: Please select Pera Wallet in the Connect Wallet popup to authorize and pay the 0.005 ALGO x402 storage fee.')
       return
     }
 
@@ -82,7 +87,7 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
       // Step 1: Encrypt Document using AES-256-GCM in browser memory
       setStep('HASHING')
       setStatusMessage('Encrypting document with AES-256-GCM & computing SHA-256 original hash...')
-      const encPackage = await encryptFileForIPFS(selectedFile, propertyId.trim().toUpperCase(), ownerAddress.trim())
+      const encPackage = await encryptFileForIPFS(selectedFile, propertyId.trim().toUpperCase(), payerAddressToUse)
 
       const encryptedFile = new File(
         [encPackage.encryptedBuffer],
@@ -93,8 +98,8 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
       // Step 2: x402 HTTP 402 Storage Fee Payment (0.005 ALGO / 5,000 microAlgos)
       setStep('PAYING_X402')
       setStatusMessage('Processing x402 HTTP 402 Storage Microtransaction Challenge (0.005 ALGO / 5,000 microAlgos)...')
-      const walletOrSigner = activeWallet || transactionSigner
-      const paymentProof = await processX402StoragePayment(ownerAddress.trim(), propertyId.trim().toUpperCase(), walletOrSigner)
+      const walletOrSigner = transactionSigner || activeWallet
+      const paymentProof = await processX402StoragePayment(payerAddressToUse, propertyId.trim().toUpperCase(), walletOrSigner)
       setX402ProofTx(paymentProof.txHash)
 
       // Step 3: Upload Encrypted payload to IPFS Pinata

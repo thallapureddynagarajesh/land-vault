@@ -125,12 +125,14 @@ export async function processX402StoragePayment(
   walletOrSigner?: any,
   receiverAddress: string = DEFAULT_TREASURY_ADDRESS
 ): Promise<X402PaymentProof> {
-  if (!payerAddress || payerAddress.trim().length !== 58) {
-    throw new Error('x402 Payment Required: A valid 58-character Algorand wallet address is required to pay the 0.005 ALGO fee.')
+  const cleanPayer = (payerAddress || '').trim()
+
+  if (!cleanPayer || cleanPayer.length !== 58) {
+    throw new Error('x402 Payment Required: A valid 58-character connected Algorand wallet address is required.')
   }
 
   if (!walletOrSigner) {
-    throw new Error('x402 Payment Required: Please connect your Algorand Wallet (Pera / Defly) to approve the 0.005 ALGO storage fee payment.')
+    throw new Error('x402 Payment Required: Please connect your Pera Wallet using the "Connect Wallet" button in the top right menu.')
   }
 
   // 1. Get Algod Client (Public Algonode TestNet fallback if localhost fails)
@@ -150,7 +152,7 @@ export async function processX402StoragePayment(
   // 2. Build 0.005 ALGO (5,000 microAlgos) Algorand Payment Transaction
   const enc = new TextEncoder()
   const paymentTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-    sender: payerAddress.trim(),
+    sender: cleanPayer,
     receiver: receiverAddress,
     amount: 5000, // 0.005 ALGO = 5,000 microAlgos
     note: enc.encode(`x402-storage-fee:${parcelId}`),
@@ -191,11 +193,11 @@ export async function processX402StoragePayment(
     } else if (walletOrSigner && walletOrSigner.client && typeof walletOrSigner.client.signTransactions === 'function') {
       signedTxns = await walletOrSigner.client.signTransactions([unsignedBytes])
     } else {
-      // Direct emergency fallback attempt
+      // Direct fallback
       try {
         signedTxns = await (walletOrSigner as any)([paymentTxn], [0])
       } catch {
-        throw new Error('Algorand Wallet Connection required. Please click "Connect Wallet" in the top right menu to connect Pera Wallet.')
+        throw new Error('Algorand Wallet Connection required. Please click "Connect Wallet" at the top right to connect Pera Wallet.')
       }
     }
   } catch (signErr: any) {
@@ -215,7 +217,7 @@ export async function processX402StoragePayment(
     return {
       txHash,
       amountMicroAlgos: 5000,
-      payerAddress: payerAddress.trim(),
+      payerAddress: cleanPayer,
       receiverAddress,
       endpoint: '/api/v1/store-document',
       timestamp: Math.floor(Date.now() / 1000),

@@ -12,6 +12,7 @@ interface LandVerificationProps {
   onDeleteLand?: (parcelId: string) => void
   connectedAddress?: string | null
   userRole?: 'citizen' | 'registrar' | 'investor'
+  onConnectWalletClick?: () => void
 }
 
 export const LandVerification: React.FC<LandVerificationProps> = ({
@@ -21,8 +22,10 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
   onDeleteLand,
   connectedAddress,
   userRole = 'citizen',
+  onConnectWalletClick,
 }) => {
-  const { activeWallet, transactionSigner } = useWallet()
+  const { activeAddress, activeWallet, transactionSigner } = useWallet()
+
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedParcel, setSelectedParcel] = useState<LandParcel | null>(parcels[0] || null)
   const [copiedHash, setCopiedHash] = useState(false)
@@ -43,6 +46,7 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
   const [storeDocHash, setStoreDocHash] = useState('')
   const [storeFileName, setStoreFileName] = useState('')
   const [isStoringDoc, setIsStoringDoc] = useState(false)
+
   // Delete Document from Ledger modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleteParcelInput, setDeleteParcelInput] = useState('')
@@ -79,15 +83,18 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
     e.preventDefault()
     if (!storePin || !storeLocation || !storeArea || !storeOwner || !storeDocHash) return
 
-    if (!transactionSigner) {
-      alert('⚠️ Algorand Wallet Connection Required: Please click "Connect Wallet" at the top right to connect your Pera or Defly wallet. The 0.005 ALGO x402 storage fee will be charged directly on-chain from your wallet.')
+    const payerAddressToUse = connectedAddress || activeAddress || storeOwner.trim()
+
+    if (!transactionSigner && !activeWallet) {
+      if (onConnectWalletClick) onConnectWalletClick()
+      alert('⚠️ Algorand Wallet Connection Required: Please select Pera Wallet in the Connect Wallet popup to authorize and pay the 0.005 ALGO x402 storage fee.')
       return
     }
 
     try {
       setIsStoringDoc(true)
-      const walletOrSigner = activeWallet || transactionSigner
-      await processX402StoragePayment(storeOwner.trim(), storePin.trim().toUpperCase(), walletOrSigner)
+      const walletOrSigner = transactionSigner || activeWallet
+      await processX402StoragePayment(payerAddressToUse, storePin.trim().toUpperCase(), walletOrSigner)
 
       if (onRegisterLand) {
         onRegisterLand({

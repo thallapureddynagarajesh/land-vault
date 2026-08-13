@@ -389,6 +389,7 @@ export const Home: React.FC = () => {
             onDeleteLand={handleDeleteLand}
             connectedAddress={activeAddress}
             userRole={userRole}
+            onConnectWalletClick={() => setOpenWalletModal(true)}
           />
         )}
 
@@ -397,6 +398,7 @@ export const Home: React.FC = () => {
             onRegisterLand={handleRegisterLand}
             connectedAddress={activeAddress}
             onSuccessNavigate={() => setActiveTab('search')}
+            onConnectWalletClick={() => setOpenWalletModal(true)}
           />
         )}
 
