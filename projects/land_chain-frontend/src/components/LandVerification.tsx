@@ -48,46 +48,57 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
     e.preventDefault()
     if (!storePin || !storeLocation || !storeArea || !storeOwner || !storeDocHash) return
 
-    setIsStoringDoc(true)
-    await processX402StoragePayment(storeOwner.trim(), storePin.trim().toUpperCase(), transactionSigner)
+    if (!transactionSigner) {
+      alert('⚠️ Algorand Wallet Connection Required: Please click "Connect Wallet" at the top right to connect your Pera or Defly wallet. The 0.005 ALGO x402 storage fee will be charged directly on-chain from your wallet.')
+      return
+    }
 
-    if (onRegisterLand) {
-      onRegisterLand({
+    try {
+      setIsStoringDoc(true)
+      await processX402StoragePayment(storeOwner.trim(), storePin.trim().toUpperCase(), transactionSigner)
+
+      if (onRegisterLand) {
+        onRegisterLand({
+          parcelId: storePin.trim().toUpperCase(),
+          location: storeLocation.trim(),
+          areaSqft: Number(storeArea),
+          propertyType: 'Residential',
+          documentType: 'Sale Deed',
+          owner: storeOwner.trim(),
+          ipfsCid: `Qm${storeDocHash.trim().slice(0, 44)}`,
+          documentHash: storeDocHash.trim(),
+        })
+      }
+
+      const newP: LandParcel = {
         parcelId: storePin.trim().toUpperCase(),
         location: storeLocation.trim(),
         areaSqft: Number(storeArea),
         propertyType: 'Residential',
         documentType: 'Sale Deed',
         owner: storeOwner.trim(),
+        isApproved: true,
+        isForSale: false,
+        priceMicroAlgos: 0,
         ipfsCid: `Qm${storeDocHash.trim().slice(0, 44)}`,
         documentHash: storeDocHash.trim(),
-      })
-    }
-    setIsStoringDoc(false)
-    setShowStoreModal(false)
+        createdAt: Math.floor(Date.now() / 1000),
+        lastTransferAt: Math.floor(Date.now() / 1000),
+      }
+      setSelectedParcel(newP)
 
-    const newP: LandParcel = {
-      parcelId: storePin.trim().toUpperCase(),
-      location: storeLocation.trim(),
-      areaSqft: Number(storeArea),
-      propertyType: 'Residential',
-      documentType: 'Sale Deed',
-      owner: storeOwner.trim(),
-      isApproved: true,
-      isForSale: false,
-      priceMicroAlgos: 0,
-      ipfsCid: `Qm${storeDocHash.trim().slice(0, 44)}`,
-      documentHash: storeDocHash.trim(),
-      createdAt: Math.floor(Date.now() / 1000),
-      lastTransferAt: Math.floor(Date.now() / 1000),
+      setShowStoreModal(false)
+      setStorePin('')
+      setStoreLocation('')
+      setStoreArea('')
+      setStoreOwner('')
+      setStoreDocHash('')
+      setStoreFileName('')
+    } catch (err: any) {
+      alert(err.message || 'Payment or Storage error.')
+    } finally {
+      setIsStoringDoc(false)
     }
-    setSelectedParcel(newP)
-    setStorePin('')
-    setStoreLocation('')
-    setStoreArea('')
-    setStoreOwner('')
-    setStoreDocHash('')
-    setStoreFileName('')
   }
 
   const [searchError, setSearchError] = useState<string | null>(null)

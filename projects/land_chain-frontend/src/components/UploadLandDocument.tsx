@@ -73,6 +73,11 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
       return
     }
 
+    if (!transactionSigner) {
+      setErrorMessage('⚠️ Algorand Wallet Connection Required: Please click the "Connect Wallet" button at the top right to connect your Pera or Defly wallet. The 0.005 ALGO x402 storage fee will be charged directly from your wallet balance on-chain.')
+      return
+    }
+
     try {
       // Step 1: Encrypt Document using AES-256-GCM in browser memory
       setStep('HASHING')
