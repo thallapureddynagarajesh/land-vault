@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ShieldCheck, ExternalLink, RefreshCw, FileCheck2, AlertTriangle, MapPin, Calendar, User, Hash, FileCode2, Copy, Check, Globe, Lock, Unlock, Eye, Download } from 'lucide-react'
+import { ShieldCheck, ExternalLink, RefreshCw, FileCheck2, AlertTriangle, MapPin, Calendar, User, Hash, FileCode2, Copy, Check, Globe, Lock, Unlock, Eye, Download, Trash2 } from 'lucide-react'
 import { LandParcel } from '../interfaces/land'
 import { getIPFSGatewayUrl, getAllGatewayUrls, verifyDocumentIntegrity } from '../services/ipfs'
 import { checkWalletAccessPermission, decryptFileFromIPFS } from '../services/encryption'
@@ -7,6 +7,7 @@ import { checkWalletAccessPermission, decryptFileFromIPFS } from '../services/en
 interface LandRecordDetailsProps {
   parcel: LandParcel
   onOpenAuditTrail?: (parcelId: string) => void
+  onDeleteLand?: (parcelId: string) => void
   connectedAddress?: string | null
   userRole?: 'citizen' | 'registrar' | 'investor'
 }
@@ -14,6 +15,7 @@ interface LandRecordDetailsProps {
 export const LandRecordDetails: React.FC<LandRecordDetailsProps> = ({
   parcel,
   onOpenAuditTrail,
+  onDeleteLand,
   connectedAddress = null,
   userRole = 'citizen',
 }) => {
@@ -317,6 +319,19 @@ export const LandRecordDetails: React.FC<LandRecordDetailsProps> = ({
             </>
           )}
         </button>
+
+        {onDeleteLand && (permission.authorized || userRole === 'registrar') && (
+          <button
+            onClick={() => {
+              if (window.confirm(`Are you sure you want to delete and deregister parcel '${parcel.parcelId}' from Box Storage?`)) {
+                onDeleteLand(parcel.parcelId)
+              }
+            }}
+            className="px-5 py-3.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-bold text-xs border border-rose-500/30 flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
+          >
+            <Trash2 className="w-4 h-4" /> Delete Record
+          </button>
+        )}
       </div>
 
       {/* Verification Status Result Box */}

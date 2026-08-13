@@ -354,6 +354,10 @@ export const Home: React.FC = () => {
   // Find parcel selected for audit trail modal
   const selectedAuditParcel = parcels.find((p) => p.parcelId === auditModalParcelId) || null
 
+  const handleDeleteLand = (parcelId: string) => {
+    setParcels((prev) => prev.filter((p) => p.parcelId !== parcelId))
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950">
       {/* Navigation Header */}
@@ -382,6 +386,7 @@ export const Home: React.FC = () => {
             parcels={parcels}
             onOpenAuditTrail={(parcelId) => setAuditModalParcelId(parcelId)}
             onRegisterLand={handleRegisterLand}
+            onDeleteLand={handleDeleteLand}
             connectedAddress={activeAddress}
             userRole={userRole}
           />
@@ -412,6 +417,7 @@ export const Home: React.FC = () => {
             onListForSale={handleListForSale}
             onDelistLand={handleDelistLand}
             onTransferOwnership={handleTransferOwnership}
+            onDeleteLand={handleDeleteLand}
             onOpenAuditTrail={(parcelId) => setAuditModalParcelId(parcelId)}
           />
         )}

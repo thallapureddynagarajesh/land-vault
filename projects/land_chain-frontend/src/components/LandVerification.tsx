@@ -9,6 +9,7 @@ interface LandVerificationProps {
   parcels: LandParcel[]
   onOpenAuditTrail: (parcelId: string) => void
   onRegisterLand?: (newParcel: Omit<LandParcel, 'isApproved' | 'isForSale' | 'priceMicroAlgos' | 'createdAt' | 'lastTransferAt'>) => void
+  onDeleteLand?: (parcelId: string) => void
   connectedAddress?: string | null
   userRole?: 'citizen' | 'registrar' | 'investor'
 }
@@ -17,6 +18,7 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
   parcels,
   onOpenAuditTrail,
   onRegisterLand,
+  onDeleteLand,
   connectedAddress,
   userRole = 'citizen',
 }) => {
@@ -360,6 +362,7 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
         <LandRecordDetails
           parcel={selectedParcel}
           onOpenAuditTrail={onOpenAuditTrail}
+          onDeleteLand={onDeleteLand}
           connectedAddress={connectedAddress}
           userRole={userRole}
         />

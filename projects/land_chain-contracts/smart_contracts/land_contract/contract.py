@@ -218,3 +218,13 @@ class LandContract(ARC4Contract):
     @arc4.abimethod(readonly=True)
     def is_land_registered(self, parcel_id: String) -> bool:
         return parcel_id in self.parcels
+
+    @arc4.abimethod()
+    def delete_land(self, parcel_id: String) -> None:
+        assert parcel_id in self.parcels, "Parcel ID does not exist"
+        record = self.parcels[parcel_id].copy()
+        assert (
+            arc4.Address(Txn.sender) == record.owner or Txn.sender == self.admin.value
+        ), "Only land owner or admin can delete land record"
+        del self.parcels[parcel_id]
+

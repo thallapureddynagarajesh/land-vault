@@ -166,3 +166,34 @@ def test_buy_land(context: AlgopyTestContext) -> None:
     record = contract.get_land(parcel_id)
     assert record.owner == arc4.Address(buyer_account)
     assert record.is_for_sale.native is False
+
+
+def test_delete_land(context: AlgopyTestContext) -> None:
+    admin_account = context.any.account()
+    owner_account = context.any.account()
+
+    contract = LandContract()
+    with context.txn.create_group(active_txn_overrides={"sender": admin_account}):
+        contract.create_application()
+
+    parcel_id = String("PRCL-105")
+    with context.txn.create_group(active_txn_overrides={"sender": admin_account}):
+        contract.register_land(
+            parcel_id=parcel_id,
+            location=String("Delete Test Zone"),
+            area_sqft=UInt64(1200),
+            property_type=String("Residential"),
+            document_type=String("Deed"),
+            owner=owner_account,
+            ipfs_cid=String("QmDeleteCID"),
+            document_hash=String("QmDeleteHash"),
+        )
+
+    assert contract.is_land_registered(parcel_id) is True
+
+    # Owner deletes land record from Box Storage
+    with context.txn.create_group(active_txn_overrides={"sender": owner_account}):
+        contract.delete_land(parcel_id)
+
+    assert contract.is_land_registered(parcel_id) is False
+

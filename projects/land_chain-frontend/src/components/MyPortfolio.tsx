@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Building2, MapPin, Send, Tag, ExternalLink, ShieldCheck, Download, History, Plus } from 'lucide-react'
+import { Building2, MapPin, Send, Tag, ExternalLink, ShieldCheck, Download, History, Plus, Trash2 } from 'lucide-react'
 import { LandParcel } from '../interfaces/land'
 
 interface MyPortfolioProps {
@@ -8,6 +8,7 @@ interface MyPortfolioProps {
   onListForSale: (parcelId: string, priceAlgos: number) => void
   onDelistLand: (parcelId: string) => void
   onTransferOwnership: (parcelId: string, recipientAddress: string) => void
+  onDeleteLand: (parcelId: string) => void
   onOpenAuditTrail: (parcelId: string) => void
 }
 
@@ -17,6 +18,7 @@ export const MyPortfolio: React.FC<MyPortfolioProps> = ({
   onListForSale,
   onDelistLand,
   onTransferOwnership,
+  onDeleteLand,
   onOpenAuditTrail,
 }) => {
   const [listingParcelId, setListingParcelId] = useState<string | null>(null)
@@ -61,7 +63,7 @@ export const MyPortfolio: React.FC<MyPortfolioProps> = ({
                   Personal Holdings
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-1">Manage your certified real-estate holdings, issue sale listings, or transfer ownership on Algorand.</p>
+              <p className="text-xs text-slate-400 mt-1">Manage your certified real-estate holdings, issue sale listings, transfer ownership, or delete records on Algorand.</p>
             </div>
           </div>
 
@@ -158,12 +160,25 @@ export const MyPortfolio: React.FC<MyPortfolioProps> = ({
                   </button>
                 </div>
 
-                <button
-                  onClick={() => onOpenAuditTrail(parcel.parcelId)}
-                  className="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-medium border border-slate-800 transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <History className="w-3.5 h-3.5 text-emerald-400" /> View Immutable Provenance
-                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => onOpenAuditTrail(parcel.parcelId)}
+                    className="py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-medium border border-slate-800 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <History className="w-3.5 h-3.5 text-emerald-400" /> Audit Trail
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`Are you sure you want to delete and deregister parcel '${parcel.parcelId}' from Box Storage?`)) {
+                        onDeleteLand(parcel.parcelId)
+                      }
+                    }}
+                    className="py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold border border-rose-500/30 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" /> Delete Record
+                  </button>
+                </div>
               </div>
 
               {/* Inline List For Sale Drawer */}
