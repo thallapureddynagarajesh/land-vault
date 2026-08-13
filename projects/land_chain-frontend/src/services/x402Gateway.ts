@@ -5,7 +5,6 @@
  */
 
 import algosdk from 'algosdk'
-import { AlgorandClient, microAlgos } from '@algorandfoundation/algokit-utils'
 import { getAlgodConfigFromViteEnvironment } from '../utils/network/getAlgoClientConfigs'
 
 export interface X402EndpointConfig {
@@ -130,83 +129,58 @@ export async function processX402StoragePayment(
     throw new Error('x402 Payment Required: A valid 58-character Algorand wallet address is required to pay the 0.005 ALGO fee.')
   }
 
+  if (!walletOrSigner) {
+    throw new Error('x402 Payment Required: Please connect your Algorand Wallet (Pera / Defly) to approve the 0.005 ALGO storage fee payment.')
+  }
+
+  // 1. Get Algod Client (Public Algonode TestNet fallback if localhost fails)
+  let algodServer = 'https://testnet-api.algonode.cloud'
   try {
-    // Determine Algod Node Server (Public Algonode TestNet fallback if localhost fails)
-    let algodServer = 'https://testnet-api.algonode.cloud'
-    try {
-      const envConfig = getAlgodConfigFromViteEnvironment()
-      if (envConfig.server && !envConfig.server.includes('localhost')) {
-        algodServer = envConfig.server
-      }
-    } catch {
-      algodServer = 'https://testnet-api.algonode.cloud'
+    const envConfig = getAlgodConfigFromViteEnvironment()
+    if (envConfig.server && !envConfig.server.includes('localhost')) {
+      algodServer = envConfig.server
     }
+  } catch {
+    algodServer = 'https://testnet-api.algonode.cloud'
+  }
 
-    const algodClient = new algosdk.Algodv2('', algodServer, '')
-    const suggestedParams = await algodClient.getTransactionParams().do()
+  const algodClient = new algosdk.Algodv2('', algodServer, '')
+  const suggestedParams = await algodClient.getTransactionParams().do()
 
-    // Create 0.005 ALGO (5,000 microAlgos) payment transaction
-    const enc = new TextEncoder()
-    const paymentTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-      sender: payerAddress.trim(),
-      receiver: receiverAddress,
-      amount: 5000, // 0.005 ALGO = 5,000 microAlgos
-      note: enc.encode(`x402-storage-fee:${parcelId}`),
-      suggestedParams,
-    })
+  // 2. Build 0.005 ALGO (5,000 microAlgos) Algorand Payment Transaction
+  const enc = new TextEncoder()
+  const paymentTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+    sender: payerAddress.trim(),
+    receiver: receiverAddress,
+    amount: 5000, // 0.005 ALGO = 5,000 microAlgos
+    note: enc.encode(`x402-storage-fee:${parcelId}`),
+    suggestedParams,
+  })
 
-    const unsignedTxnBytes = algosdk.encodeUnsignedTransaction(paymentTxn)
-    let signedTxns: Uint8Array[] = []
-
-    // 1. If walletOrSigner is a function (standard transactionSigner from useWallet)
+  // 3. Sign transaction directly via transactionSigner (opens Pera Wallet)
+  let signedTxns: Uint8Array[] = []
+  try {
     if (typeof walletOrSigner === 'function') {
-      try {
-        signedTxns = await walletOrSigner([paymentTxn], [0])
-      } catch {
-        signedTxns = await walletOrSigner([unsignedTxnBytes], [0])
-      }
-    }
-    // 2. If walletOrSigner is an activeWallet instance with signTransactions
-    else if (walletOrSigner && typeof walletOrSigner.signTransactions === 'function') {
-      try {
-        signedTxns = await walletOrSigner.signTransactions([unsignedTxnBytes])
-      } catch {
-        signedTxns = await walletOrSigner.signTransactions([paymentTxn])
-      }
-    }
-    // 3. If walletOrSigner is an activeWallet instance with .signer
-    else if (walletOrSigner && typeof walletOrSigner.signer === 'function') {
+      signedTxns = await walletOrSigner([paymentTxn], [0])
+    } else if (walletOrSigner && typeof walletOrSigner.signTransactions === 'function') {
+      const unsignedBytes = algosdk.encodeUnsignedTransaction(paymentTxn)
+      signedTxns = await walletOrSigner.signTransactions([unsignedBytes])
+    } else if (walletOrSigner && typeof walletOrSigner.signer === 'function') {
       signedTxns = await walletOrSigner.signer([paymentTxn], [0])
+    } else {
+      throw new Error('No valid wallet signer function provided.')
     }
-    // 4. Fallback using AlgorandClient from algokit-utils
-    else {
-      const algorand = AlgorandClient.fromConfig({
-        algodConfig: { server: algodServer, port: '', token: '' },
-      })
-      if (walletOrSigner) {
-        algorand.setDefaultSigner(walletOrSigner)
-      }
-      const payResult = await algorand.send.payment({
-        sender: payerAddress.trim(),
-        receiver: receiverAddress,
-        amount: microAlgos(5000),
-        note: enc.encode(`x402-storage-fee:${parcelId}`),
-      })
-      return {
-        txHash: payResult.txIds[0] || `TX-${parcelId}`,
-        amountMicroAlgos: 5000,
-        payerAddress: payerAddress.trim(),
-        receiverAddress,
-        endpoint: '/api/v1/store-document',
-        timestamp: Math.floor(Date.now() / 1000),
-      }
-    }
+  } catch (signErr: any) {
+    console.error('Pera Wallet transaction signing error:', signErr)
+    throw new Error(`x402 Payment Rejected or Cancelled in Wallet: ${signErr.message || 'User declined transaction.'}`)
+  }
 
-    if (!signedTxns || signedTxns.length === 0 || !signedTxns[0]) {
-      throw new Error('Transaction was not signed in Pera Wallet.')
-    }
+  if (!signedTxns || signedTxns.length === 0 || !signedTxns[0]) {
+    throw new Error('Transaction was not signed in Pera Wallet.')
+  }
 
-    // Broadcast signed payment transaction to Algorand TestNet on-chain
+  // 4. Broadcast signed payment transaction to Algorand TestNet on-chain
+  try {
     const sendResult = await algodClient.sendRawTransaction(signedTxns[0]).do()
     const txHash = (sendResult as any).txid || (sendResult as any).txId || paymentTxn.txID()
 
@@ -218,12 +192,9 @@ export async function processX402StoragePayment(
       endpoint: '/api/v1/store-document',
       timestamp: Math.floor(Date.now() / 1000),
     }
-  } catch (err: any) {
-    console.error('Live Pera Wallet transaction error:', err)
-    if (err.message && (err.message.includes('rejected') || err.message.includes('cancelled') || err.message.includes('blocked') || err.message.includes('User denied') || err.message.includes('declined'))) {
-      throw new Error(`x402 Storage Fee Payment Cancelled by user in Pera Wallet: ${err.message}`)
-    }
-    throw new Error(`x402 Storage Fee Payment Failed: ${err.message || 'Check Pera Wallet connection & ALGO balance.'}`)
+  } catch (txErr: any) {
+    console.error('On-chain broadcast error:', txErr)
+    throw new Error(`Algorand On-Chain Transaction Submission Failed: ${txErr.message || 'Insufficient balance or network timeout.'}`)
   }
 }
 
