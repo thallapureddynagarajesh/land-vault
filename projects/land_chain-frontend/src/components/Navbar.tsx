@@ -1,5 +1,5 @@
-import React from 'react'
-import { ShieldCheck, Building2, Search, Store, UserCheck, Wallet, ChevronRight, Activity } from 'lucide-react'
+import React, { useState } from 'react'
+import { ShieldCheck, Building2, Search, Store, UserCheck, Wallet, ChevronRight, Activity, Copy, Check } from 'lucide-react'
 
 interface NavbarProps {
   activeTab: 'search' | 'upload' | 'marketplace' | 'portfolio' | 'government'
@@ -18,6 +18,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   connectedAddress,
   onConnectWalletClick,
 }) => {
+  const [copiedNavbarAddress, setCopiedNavbarAddress] = useState(false)
+
+  const handleCopyNavbarAddress = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (connectedAddress) {
+      navigator.clipboard.writeText(connectedAddress)
+      setCopiedNavbarAddress(true)
+      setTimeout(() => setCopiedNavbarAddress(false), 2000)
+    }
+  }
   return (
     <header className="sticky top-0 z-40 w-full glass-card border-b border-slate-800/80 px-4 lg:px-8 py-3">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
@@ -129,21 +139,33 @@ export const Navbar: React.FC<NavbarProps> = ({
             </select>
           </div>
 
-          {/* Connect Wallet Button */}
-          <button
-            onClick={onConnectWalletClick}
-            className="px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-emerald-400 border border-slate-700/80 shadow-md flex items-center gap-2 transition-all hover:border-emerald-500/50"
-          >
-            <Wallet className="w-4 h-4 text-emerald-400" />
-            {connectedAddress ? (
-              <span className="font-mono text-emerald-300">
-                {connectedAddress.slice(0, 6)}...{connectedAddress.slice(-4)}
-              </span>
-            ) : (
-              <span>Connect Wallet</span>
+          {/* Connect Wallet Button & Copy Action */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={onConnectWalletClick}
+              className="px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-emerald-400 border border-slate-700/80 shadow-md flex items-center gap-2 transition-all hover:border-emerald-500/50 cursor-pointer"
+            >
+              <Wallet className="w-4 h-4 text-emerald-400" />
+              {connectedAddress ? (
+                <span className="font-mono text-emerald-300">
+                  {connectedAddress.slice(0, 6)}...{connectedAddress.slice(-4)}
+                </span>
+              ) : (
+                <span>Connect Wallet</span>
+              )}
+              <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+            </button>
+
+            {connectedAddress && (
+              <button
+                onClick={handleCopyNavbarAddress}
+                title="Copy Connected Wallet Address"
+                className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 border border-slate-800 transition-all cursor-pointer flex items-center justify-center"
+              >
+                {copiedNavbarAddress ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-slate-400" />}
+              </button>
             )}
-            <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-          </button>
+          </div>
         </div>
       </div>
     </header>
