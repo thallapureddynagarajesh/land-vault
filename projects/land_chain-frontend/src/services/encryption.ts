@@ -87,6 +87,37 @@ export async function encryptFileForIPFS(
 }
 
 /**
+ * Detect file MIME type from magic bytes header of decrypted ArrayBuffer
+ */
+export function detectMimeType(buffer: ArrayBuffer): string {
+  if (!buffer || buffer.byteLength < 4) return 'application/pdf'
+
+  const bytes = new Uint8Array(buffer)
+  // PDF: %PDF (0x25, 0x50, 0x44, 0x46)
+  if (bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46) {
+    return 'application/pdf'
+  }
+  // PNG: 0x89 0x50 0x4E 0x47
+  if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) {
+    return 'image/png'
+  }
+  // JPEG: 0xFF 0xD8 0xFF
+  if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) {
+    return 'image/jpeg'
+  }
+  // GIF: 0x47 0x49 0x46
+  if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46) {
+    return 'image/gif'
+  }
+  // WEBP: RIFF...WEBP
+  if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46) {
+    return 'image/webp'
+  }
+
+  return 'application/pdf'
+}
+
+/**
  * Decrypt an encrypted document ArrayBuffer retrieved from IPFS
  */
 export async function decryptFileFromIPFS(
@@ -111,7 +142,8 @@ export async function decryptFileFromIPFS(
     encryptedBuffer
   )
 
-  return new Blob([decryptedBuffer], { type: fileType })
+  const detectedMime = detectMimeType(decryptedBuffer)
+  return new Blob([decryptedBuffer], { type: detectedMime || fileType })
 }
 
 /**

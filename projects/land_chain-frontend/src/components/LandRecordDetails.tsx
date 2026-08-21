@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { ShieldCheck, ExternalLink, RefreshCw, FileCheck2, AlertTriangle, MapPin, Calendar, User, Hash, FileCode2, Copy, Check, Globe, Lock, Unlock, Eye, Download, Trash2 } from 'lucide-react'
 import { LandParcel } from '../interfaces/land'
-import { getIPFSGatewayUrl, getAllGatewayUrls, verifyDocumentIntegrity } from '../services/ipfs'
-import { checkWalletAccessPermission, decryptFileFromIPFS } from '../services/encryption'
+import { getIPFSGatewayUrl, getAllGatewayUrls, verifyDocumentIntegrity, fetchFileFromIPFS } from '../services/ipfs'
+import { checkWalletAccessPermission, decryptFileFromIPFS, detectMimeType } from '../services/encryption'
 
 interface LandRecordDetailsProps {
   parcel: LandParcel
@@ -19,22 +19,24 @@ export const LandRecordDetails: React.FC<LandRecordDetailsProps> = ({
   connectedAddress = null,
   userRole = 'citizen',
 }) => {
-  const [verificationStatus, setVerificationStatus] = useState<'IDLE' | 'VERIFYING' | 'VERIFIED' | 'INVALID'>('IDLE')
-  const [computedHashResult, setComputedHashResult] = useState<string | null>(null)
+  const gatewayUrl = getIPFSGatewayUrl(parcel.ipfsCid)
+  const allGateways = getAllGatewayUrls(parcel.ipfsCid)
+  const permission = checkWalletAccessPermission(parcel.owner, connectedAddress, userRole, parcel.isForSale)
+
   const [copiedCid, setCopiedCid] = useState(false)
-  const [selectedGateway, setSelectedGateway] = useState<string>('https://ipfs.io/ipfs/')
 
   // Decryption preview state
   const [isDecrypting, setIsDecrypting] = useState(false)
   const [decryptedBlobUrl, setDecryptedBlobUrl] = useState<string | null>(null)
+  const [decryptedMimeType, setDecryptedMimeType] = useState<string>('application/pdf')
   const [decryptionError, setDecryptionError] = useState<string | null>(null)
 
-  const cid = parcel.ipfsCid || parcel.documentHash
-  const gatewayUrl = getIPFSGatewayUrl(cid, selectedGateway)
-  const allGateways = getAllGatewayUrls(cid)
+  // Document verification file upload state
+  const [verificationStatus, setVerificationStatus] = useState<'IDLE' | 'VERIFYING' | 'VERIFIED' | 'INVALID'>('IDLE')
+  const [computedHashResult, setComputedHashResult] = useState<string | null>(null)
+  const [selectedGateway, setSelectedGateway] = useState<string>('https://ipfs.io/ipfs/')
 
-  // Evaluate Wallet & Role Access Control Permission
-  const permission = checkWalletAccessPermission(parcel.owner, connectedAddress, userRole, parcel.isForSale)
+  const cid = parcel.ipfsCid || parcel.documentHash
 
   const handleCopyCid = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -47,28 +49,34 @@ export const LandRecordDetails: React.FC<LandRecordDetailsProps> = ({
     setIsDecrypting(true)
     setDecryptionError(null)
     try {
-      // 1. Fetch encrypted buffer from IPFS
-      const response = await fetch(gatewayUrl)
-      if (!response.ok) {
-        throw new Error(`Failed to fetch encrypted payload from gateway (${response.statusText}).`)
+      // 1. Fetch encrypted buffer from IPFS using multi-gateway fallback
+      let encryptedBuffer: ArrayBuffer
+      try {
+        encryptedBuffer = await fetchFileFromIPFS(parcel.ipfsCid)
+      } catch {
+        const response = await fetch(gatewayUrl)
+        if (!response.ok) {
+          throw new Error(`Failed to fetch encrypted payload from gateway (${response.statusText}).`)
+        }
+        encryptedBuffer = await response.arrayBuffer()
       }
-      const encryptedBuffer = await response.arrayBuffer()
 
       // 2. Decrypt in memory using AES-256-GCM
       const blob = await decryptFileFromIPFS(
         encryptedBuffer,
         parcel.documentHash.slice(0, 24), // IV derived from hash
         parcel.parcelId,
-        parcel.owner,
-        'application/pdf'
+        parcel.owner
       )
 
+      setDecryptedMimeType(blob.type || 'application/pdf')
       const blobUrl = URL.createObjectURL(blob)
       setDecryptedBlobUrl(blobUrl)
       setIsDecrypting(false)
     } catch (err: any) {
       console.warn('AES-256-GCM Decryption note (fallback raw document view):', err)
-      // Provide fallback direct view URL for pre-encryption legacy documents
+      setDecryptionError('Could not decrypt payload. Displaying raw IPFS document URL.')
+      setDecryptedMimeType('application/pdf')
       setDecryptedBlobUrl(gatewayUrl)
       setIsDecrypting(false)
     }
@@ -247,23 +255,44 @@ export const LandRecordDetails: React.FC<LandRecordDetailsProps> = ({
 
           {decryptedBlobUrl && (
             <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                 <span className="text-xs font-bold text-emerald-300 flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-400" /> Decrypted Original Document Ready
                 </span>
-                <a
-                  href={decryptedBlobUrl}
-                  download={`${parcel.parcelId}_DEED.pdf`}
-                  className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
-                >
-                  <Download className="w-3.5 h-3.5" /> Download Original Document
-                </a>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={decryptedBlobUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> Open in New Tab
+                  </a>
+                  <a
+                    href={decryptedBlobUrl}
+                    download={`${parcel.parcelId}_DEED`}
+                    className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" /> Download Original File
+                  </a>
+                </div>
               </div>
-              <iframe
-                src={decryptedBlobUrl}
-                title="Decrypted Land Document"
-                className="w-full h-80 rounded-lg border border-slate-800 bg-slate-950"
-              />
+
+              {decryptedMimeType.startsWith('image/') ? (
+                <div className="p-2 bg-slate-950 rounded-lg border border-slate-800 flex justify-center items-center">
+                  <img
+                    src={decryptedBlobUrl}
+                    alt="Decrypted Land Title Deed Document"
+                    className="max-h-96 w-auto max-w-full rounded-lg object-contain"
+                  />
+                </div>
+              ) : (
+                <iframe
+                  src={decryptedBlobUrl}
+                  title="Decrypted Land Document"
+                  className="w-full h-80 rounded-lg border border-slate-800 bg-slate-950"
+                />
+              )}
             </div>
           )}
         </div>
