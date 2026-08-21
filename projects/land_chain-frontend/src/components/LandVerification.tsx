@@ -99,6 +99,7 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
       if (onRegisterLand) {
         onRegisterLand({
           parcelId: storePin.trim().toUpperCase(),
+          surveyNumber: `SURVEY-${storePin.trim().toUpperCase()}`,
           location: storeLocation.trim(),
           areaSqft: Number(storeArea),
           propertyType: 'Residential',
@@ -106,23 +107,26 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
           owner: storeOwner.trim(),
           ipfsCid: `Qm${storeDocHash.trim().slice(0, 44)}`,
           documentHash: storeDocHash.trim(),
+          status: 'PENDING',
         })
       }
 
       const newP: LandParcel = {
         parcelId: storePin.trim().toUpperCase(),
+        surveyNumber: `SURVEY-${storePin.trim().toUpperCase()}`,
         location: storeLocation.trim(),
         areaSqft: Number(storeArea),
         propertyType: 'Residential',
         documentType: 'Sale Deed',
         owner: storeOwner.trim(),
-        isApproved: true,
+        isApproved: false,
         isForSale: false,
         priceMicroAlgos: 0,
         ipfsCid: `Qm${storeDocHash.trim().slice(0, 44)}`,
         documentHash: storeDocHash.trim(),
         createdAt: Math.floor(Date.now() / 1000),
         lastTransferAt: Math.floor(Date.now() / 1000),
+        status: 'PENDING',
       }
       setSelectedParcel(newP)
 
@@ -151,6 +155,7 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
     const match = parcels.find(
       (p) =>
         p.parcelId.toLowerCase() === q ||
+        (p.surveyNumber && p.surveyNumber.toLowerCase() === q) ||
         p.owner.toLowerCase() === q ||
         p.location.toLowerCase().includes(q)
     )
@@ -160,7 +165,7 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
       setFileVerificationStatus(null)
       setSearchError(null)
     } else {
-      setSearchError(`No land record found matching '${searchQuery}'. Try clicking one of the Quick Try parcel IDs below.`)
+      setSearchError(`No land record found matching '${searchQuery}'. Try searching by Land ID or Survey Number.`)
     }
   }
 

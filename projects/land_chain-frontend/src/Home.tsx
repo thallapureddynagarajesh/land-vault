@@ -17,6 +17,7 @@ import { AuditEvent, LandParcel } from './interfaces/land'
 const initialParcels: LandParcel[] = [
   {
     parcelId: 'PRCL-2026-8801',
+    surveyNumber: 'SURVEY-8801/A',
     location: 'Sector 14, Plot 88, Metro Financial District',
     areaSqft: 3500,
     propertyType: 'Residential',
@@ -30,9 +31,22 @@ const initialParcels: LandParcel[] = [
     createdAt: 1770000000,
     lastTransferAt: 1770000000,
     transactionId: 'TX-8801-AVM-BOX-DEED',
+    status: 'VERIFIED',
+    verifiedBy: 'GOV_REGISTRAR_REGISTRY_OFFICIAL_KEY',
+    verificationTimestamp: 1770000500,
+    transferCount: 0,
+    ownershipHistory: [
+      {
+        previousOwner: 'INITIAL_GOV_LAND_GRANT',
+        newOwner: '58X7K2A9P3M8V1N4Q6R0T9W2Y5Z8B1C4D7E0F3G6H9J2',
+        timestamp: 1770000000,
+        transactionId: 'TX-8801-AVM-BOX-DEED',
+      },
+    ],
   },
   {
     parcelId: 'PRCL-2026-9902',
+    surveyNumber: 'SURVEY-9902/B',
     location: 'Block B, Innovation Tech Park, Silicon Bay',
     areaSqft: 12000,
     propertyType: 'Commercial',
@@ -46,9 +60,22 @@ const initialParcels: LandParcel[] = [
     createdAt: 1770500000,
     lastTransferAt: 1770500000,
     transactionId: 'TX-9902-AVM-BOX-COMMERCIAL',
+    status: 'VERIFIED',
+    verifiedBy: 'GOV_REGISTRAR_REGISTRY_OFFICIAL_KEY',
+    verificationTimestamp: 1770500500,
+    transferCount: 1,
+    ownershipHistory: [
+      {
+        previousOwner: 'DEVELOPER_CORP_KEY',
+        newOwner: '79Z1L8B3K4M9V2N5Q7R1T0W3Y6Z9B2C5D8E1F4G7H0J3',
+        timestamp: 1770500000,
+        transactionId: 'TX-9902-AVM-BOX-COMMERCIAL',
+      },
+    ],
   },
   {
     parcelId: 'PRCL-2026-7703',
+    surveyNumber: 'SURVEY-7703/C',
     location: 'Valley Green Acres, Plot 104, West District',
     areaSqft: 45000,
     propertyType: 'Agricultural',
@@ -62,14 +89,19 @@ const initialParcels: LandParcel[] = [
     createdAt: 1771000000,
     lastTransferAt: 1771000000,
     transactionId: 'TX-7703-AVM-BOX-FARM',
+    status: 'VERIFIED',
+    verifiedBy: 'GOV_REGISTRAR_REGISTRY_OFFICIAL_KEY',
+    verificationTimestamp: 1771000500,
+    transferCount: 0,
   },
   {
     parcelId: 'PRCL-2026-6604',
+    surveyNumber: 'SURVEY-6604/D',
     location: 'Logistics Hub 9, Freight Corridor Port',
     areaSqft: 85000,
     propertyType: 'Industrial',
     documentType: 'Registration Certificate',
-    owner: '99A8B7C6D5E4F3G2H1J0K9L8M7N6P5Q4R3S2T1U0V9W8',
+    owner: 'XC7L7DOGVARDIIZWIWPWC7KINFRJZHMPNQZQGEMUFU5XLJXYJKNQPY3UM4',
     isApproved: false,
     isForSale: false,
     priceMicroAlgos: 0,
@@ -78,6 +110,30 @@ const initialParcels: LandParcel[] = [
     createdAt: 1771500000,
     lastTransferAt: 1771500000,
     transactionId: 'TX-6604-AVM-BOX-PORT',
+    status: 'PENDING',
+    transferCount: 0,
+  },
+  {
+    parcelId: 'PRCL-2026-5505',
+    surveyNumber: 'SURVEY-5505/E',
+    location: 'Hilltop View Estate, Plot 12',
+    areaSqft: 2800,
+    propertyType: 'Residential',
+    documentType: 'Title Deed',
+    owner: '99A8B7C6D5E4F3G2H1J0K9L8M7N6P5Q4R3S2T1U0V9W8',
+    isApproved: false,
+    isForSale: false,
+    priceMicroAlgos: 0,
+    ipfsCid: 'QmHilltopHash123CID',
+    documentHash: 'e41d8cd98f00b204e9800998ecf8427e90000000000000000000000000000000',
+    createdAt: 1771600000,
+    lastTransferAt: 1771600000,
+    transactionId: 'TX-5505-AVM-BOX-HILLTOP',
+    status: 'REJECTED',
+    verifiedBy: 'GOV_REGISTRAR_REGISTRY_OFFICIAL_KEY',
+    verificationTimestamp: 1771600500,
+    rejectionReason: 'Mismatched boundary survey plot map. Please re-upload certified land survey deed.',
+    transferCount: 0,
   },
 ]
 
@@ -98,83 +154,28 @@ const initialAuditEvents: AuditEvent[] = [
     eventType: 'GOV_APPROVAL',
     fromAddress: 'GOV_ADMIN_AUTHORITY_KEY_ALGORAND_OFFICIAL',
     timestamp: 1770000500,
-    blockRound: 39104115,
-    txHash: '7R1T0W3Y6Z9B2C5D8E1F4G7H0J3K6L9M2N5P8Q1V4N7',
-  },
-  {
-    id: 'evt-3',
-    parcelId: 'PRCL-2026-9902',
-    eventType: 'REGISTRATION',
-    toAddress: '79Z1L8B3K4M9V2N5Q7R1T0W3Y6Z9B2C5D8E1F4G7H0J3',
-    timestamp: 1770500000,
-    blockRound: 39115000,
-    txHash: '9Z0B3C6D9E2F5G8H1J4K7L0M3N6P9Q2R5T8W1Y4Z7B0',
-  },
-  {
-    id: 'evt-4',
-    parcelId: 'PRCL-2026-9902',
-    eventType: 'GOV_APPROVAL',
-    fromAddress: 'GOV_ADMIN_AUTHORITY_KEY_ALGORAND_OFFICIAL',
-    timestamp: 1770500300,
-    blockRound: 39115080,
-    txHash: '4F3G2H1J0K9L8M7N6P5Q4R3S2T1U0V9W8X7Y6Z5A4B3',
-  },
-  {
-    id: 'evt-5',
-    parcelId: 'PRCL-2026-9902',
-    eventType: 'LISTED_FOR_SALE',
-    fromAddress: '79Z1L8B3K4M9V2N5Q7R1T0W3Y6Z9B2C5D8E1F4G7H0J3',
-    priceAlgos: 450000,
-    timestamp: 1770501000,
-    blockRound: 39115320,
-    txHash: '1K2L3M4N5P6Q7R8S9T0U1V2W3X4Y5Z6A7B8C9D0E1F2',
-  },
-  {
-    id: 'evt-6',
-    parcelId: 'PRCL-2026-7703',
-    eventType: 'REGISTRATION',
-    toAddress: '23M4K8L9P1N5V3Q7R2T1W4Y7Z0B3C6D9E2F5G8H1J4K7',
-    timestamp: 1771000000,
-    blockRound: 39126000,
-    txHash: '3X4Y5Z6A7B8C9D0E1F2G3H4I5J6K7L8M9N0P1Q2R3S4',
-  },
-  {
-    id: 'evt-7',
-    parcelId: 'PRCL-2026-7703',
-    eventType: 'LISTED_FOR_SALE',
-    fromAddress: '23M4K8L9P1N5V3Q7R2T1W4Y7Z0B3C6D9E2F5G8H1J4K7',
-    priceAlgos: 120000,
-    timestamp: 1771000500,
-    blockRound: 39126150,
-    txHash: '8M9N0P1Q2R3S4T5U6V7W8X9Y0Z1A2B3C4D5E6F7G8H9',
-  },
-  {
-    id: 'evt-8',
-    parcelId: 'PRCL-2026-6604',
-    eventType: 'REGISTRATION',
-    toAddress: '99A8B7C6D5E4F3G2H1J0K9L8M7N6P5Q4R3S2T1U0V9W8',
-    timestamp: 1771500000,
-    blockRound: 39138000,
-    txHash: '5E6F7G8H9I0J1K2L3M4N5P6Q7R8S9T0U1V2W3X4Y5Z6',
+    blockRound: 39104100,
+    txHash: '9Z1L8B3K4M9V2N5Q7R1T0W3Y6Z9B2C5D8E1F4G7H0J3K',
   },
 ]
 
 export const Home: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'search' | 'upload' | 'marketplace' | 'portfolio' | 'government'>('search')
-  const [userRole, setUserRole] = useState<'citizen' | 'registrar' | 'investor'>('citizen')
+  const { enqueueSnackbar } = useSnackbar()
+  const { activeAddress } = useWallet()
+
+  // Primary State
   const [parcels, setParcels] = useState<LandParcel[]>(initialParcels)
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>(initialAuditEvents)
-  const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
+  const [activeTab, setActiveTab] = useState<'search' | 'upload' | 'marketplace' | 'portfolio' | 'government'>('search')
+  const [userRole, setUserRole] = useState<'citizen' | 'registrar' | 'investor'>('citizen')
   const [auditModalParcelId, setAuditModalParcelId] = useState<string | null>(null)
+  const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
 
-  const { activeAddress } = useWallet()
-  const { enqueueSnackbar } = useSnackbar()
-
-  // Helper generator for realistic pseudo-txHash
+  // Generate mock Algorand transaction hash
   const generateTxHash = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     let res = ''
-    for (let i = 0; i < 44; i++) {
+    for (let i = 0; i < 52; i++) {
       res += chars.charAt(Math.floor(Math.random() * chars.length))
     }
     return res
@@ -182,26 +183,29 @@ export const Home: React.FC = () => {
 
   // Calculate high-level system metrics
   const totalParcels = parcels.length
-  const verifiedCount = parcels.filter((p) => p.isApproved).length
-  const activeListings = parcels.filter((p) => p.isForSale)
+  const verifiedCount = parcels.filter((p) => p.status === 'VERIFIED').length
+  const activeListings = parcels.filter((p) => p.isForSale && p.status === 'VERIFIED')
   const activeListingsCount = activeListings.length
   const totalVolumeAlgos = activeListings.reduce((sum, p) => sum + p.priceMicroAlgos / 1e6, 0)
 
-  // 1. Issue / Register New Land Parcel (with IPFS CID & SHA-256 Hash)
+  // 1. Issue / Register New Land Parcel (status starts as PENDING)
   const handleRegisterLand = (
     newParcelData: Omit<LandParcel, 'isApproved' | 'isForSale' | 'priceMicroAlgos' | 'createdAt' | 'lastTransferAt'>
   ) => {
     const now = Math.floor(Date.now() / 1000)
     const newParcel: LandParcel = {
       ...newParcelData,
+      surveyNumber: newParcelData.surveyNumber || `SURVEY-${newParcelData.parcelId}`,
       documentType: newParcelData.documentType || 'Sale Deed',
       ipfsCid: newParcelData.ipfsCid || 'QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco',
-      isApproved: true, // Authority issued title is auto-authenticated
+      status: 'PENDING',
+      isApproved: false,
       isForSale: false,
       priceMicroAlgos: 0,
       createdAt: now,
       lastTransferAt: now,
       transactionId: newParcelData.transactionId || `TX-${Date.now()}-BOX-REG`,
+      transferCount: 0,
     }
 
     setParcels((prev) => [newParcel, ...prev])
@@ -218,34 +222,84 @@ export const Home: React.FC = () => {
     }
     setAuditEvents((prev) => [newEvent, ...prev])
 
-    enqueueSnackbar(`Land Parcel ${newParcel.parcelId} registered on IPFS & Algorand Box Storage!`, { variant: 'success' })
+    enqueueSnackbar(`Land Parcel ${newParcel.parcelId} submitted! Status: PENDING VERIFICATION`, { variant: 'warning' })
   }
 
   // 2. Approve Pending Land Title
   const handleApproveLand = (parcelId: string) => {
     const now = Math.floor(Date.now() / 1000)
+    const registrarAddr = activeAddress || 'GOV_REGISTRAR_REGISTRY_OFFICIAL_KEY'
     setParcels((prev) =>
-      prev.map((p) => (p.parcelId === parcelId ? { ...p, isApproved: true } : p))
+      prev.map((p) =>
+        p.parcelId === parcelId
+          ? {
+              ...p,
+              status: 'VERIFIED',
+              isApproved: true,
+              verifiedBy: registrarAddr,
+              verificationTimestamp: now,
+              rejectionReason: '',
+            }
+          : p
+      )
     )
 
     const newEvent: AuditEvent = {
       id: `evt-${Date.now()}`,
       parcelId,
       eventType: 'GOV_APPROVAL',
-      fromAddress: activeAddress || 'GOV_ADMIN_AUTHORITY_KEY_ALGORAND_OFFICIAL',
+      fromAddress: registrarAddr,
       timestamp: now,
       blockRound: 39140000 + Math.floor(Math.random() * 500),
       txHash: generateTxHash(),
     }
     setAuditEvents((prev) => [newEvent, ...prev])
 
-    enqueueSnackbar(`Parcel ${parcelId} deed authenticated by Government Registrar!`, { variant: 'success' })
+    enqueueSnackbar(`Parcel ${parcelId} deed APPROVED & VERIFIED by Registrar on Algorand!`, { variant: 'success' })
   }
 
-  // 3. List Property For Sale
+  // 3. Reject Pending Land Title
+  const handleRejectLand = (parcelId: string, reason: string) => {
+    const now = Math.floor(Date.now() / 1000)
+    const registrarAddr = activeAddress || 'GOV_REGISTRAR_REGISTRY_OFFICIAL_KEY'
+    setParcels((prev) =>
+      prev.map((p) =>
+        p.parcelId === parcelId
+          ? {
+              ...p,
+              status: 'REJECTED',
+              isApproved: false,
+              verifiedBy: registrarAddr,
+              verificationTimestamp: now,
+              rejectionReason: reason,
+            }
+          : p
+      )
+    )
+
+    const newEvent: AuditEvent = {
+      id: `evt-${Date.now()}`,
+      parcelId,
+      eventType: 'GOV_APPROVAL',
+      fromAddress: registrarAddr,
+      timestamp: now,
+      blockRound: 39140000 + Math.floor(Math.random() * 500),
+      txHash: generateTxHash(),
+    }
+    setAuditEvents((prev) => [newEvent, ...prev])
+
+    enqueueSnackbar(`Parcel ${parcelId} registration REJECTED with recorded reason.`, { variant: 'error' })
+  }
+
+  // 4. List Property For Sale (Only VERIFIED)
   const handleListForSale = (parcelId: string, priceAlgos: number) => {
-    const priceMicroAlgos = priceAlgos * 1e6
     const targetParcel = parcels.find((p) => p.parcelId === parcelId)
+    if (targetParcel && targetParcel.status !== 'VERIFIED') {
+      enqueueSnackbar('ERROR: Ownership transfer / marketplace listing is allowed only for VERIFIED land records.', { variant: 'error' })
+      return
+    }
+
+    const priceMicroAlgos = priceAlgos * 1e6
 
     setParcels((prev) =>
       prev.map((p) =>
@@ -268,7 +322,7 @@ export const Home: React.FC = () => {
     enqueueSnackbar(`Parcel ${parcelId} listed for sale at ${priceAlgos.toLocaleString()} ALGO!`, { variant: 'info' })
   }
 
-  // 4. Delist Property
+  // 5. Delist Property
   const handleDelistLand = (parcelId: string) => {
     setParcels((prev) =>
       prev.map((p) =>
@@ -290,17 +344,39 @@ export const Home: React.FC = () => {
     enqueueSnackbar(`Parcel ${parcelId} delisted from marketplace`, { variant: 'default' })
   }
 
-  // 5. Buy Land (Atomic Transaction Flow)
+  // 6. Buy Land (Atomic Transaction Flow)
   const handleBuyLand = (parcelId: string, priceAlgos: number, sellerAddress: string) => {
+    const targetParcel = parcels.find((p) => p.parcelId === parcelId)
+    if (targetParcel && targetParcel.status !== 'VERIFIED') {
+      enqueueSnackbar('ERROR: Ownership transfer is allowed only for VERIFIED land records.', { variant: 'error' })
+      return
+    }
+
     const buyerAddress = activeAddress || 'BUYER_WALLET_ALGORAND_MAINNET_ADDRESS_KEY'
     const now = Math.floor(Date.now() / 1000)
 
     setParcels((prev) =>
-      prev.map((p) =>
-        p.parcelId === parcelId
-          ? { ...p, owner: buyerAddress, isForSale: false, priceMicroAlgos: 0, lastTransferAt: now }
-          : p
-      )
+      prev.map((p) => {
+        if (p.parcelId !== parcelId) return p
+        const history = p.ownershipHistory || []
+        return {
+          ...p,
+          owner: buyerAddress,
+          isForSale: false,
+          priceMicroAlgos: 0,
+          lastTransferAt: now,
+          transferCount: (p.transferCount || 0) + 1,
+          ownershipHistory: [
+            ...history,
+            {
+              previousOwner: sellerAddress,
+              newOwner: buyerAddress,
+              timestamp: now,
+              transactionId: `TX-BUY-${Date.now()}`,
+            },
+          ],
+        }
+      })
     )
 
     const newEvent: AuditEvent = {
@@ -321,24 +397,46 @@ export const Home: React.FC = () => {
     })
   }
 
-  // 6. Direct Ownership Transfer
+  // 7. Direct Ownership Transfer
   const handleTransferOwnership = (parcelId: string, recipientAddress: string) => {
     const targetParcel = parcels.find((p) => p.parcelId === parcelId)
+    if (targetParcel && targetParcel.status !== 'VERIFIED') {
+      enqueueSnackbar('ERROR: Ownership transfer is allowed only for VERIFIED land records.', { variant: 'error' })
+      return
+    }
+
     const now = Math.floor(Date.now() / 1000)
+    const prevOwner = targetParcel?.owner || activeAddress || 'PREVIOUS_OWNER_KEY'
 
     setParcels((prev) =>
-      prev.map((p) =>
-        p.parcelId === parcelId
-          ? { ...p, owner: recipientAddress, isForSale: false, priceMicroAlgos: 0, lastTransferAt: now }
-          : p
-      )
+      prev.map((p) => {
+        if (p.parcelId !== parcelId) return p
+        const history = p.ownershipHistory || []
+        return {
+          ...p,
+          owner: recipientAddress,
+          isForSale: false,
+          priceMicroAlgos: 0,
+          lastTransferAt: now,
+          transferCount: (p.transferCount || 0) + 1,
+          ownershipHistory: [
+            ...history,
+            {
+              previousOwner: prevOwner,
+              newOwner: recipientAddress,
+              timestamp: now,
+              transactionId: `TX-XFER-${Date.now()}`,
+            },
+          ],
+        }
+      })
     )
 
     const newEvent: AuditEvent = {
       id: `evt-${Date.now()}`,
       parcelId,
       eventType: 'OWNERSHIP_TRANSFER',
-      fromAddress: targetParcel?.owner || activeAddress || 'PREVIOUS_OWNER_KEY',
+      fromAddress: prevOwner,
       toAddress: recipientAddress,
       timestamp: now,
       blockRound: 39140000 + Math.floor(Math.random() * 500),
@@ -404,7 +502,7 @@ export const Home: React.FC = () => {
 
         {activeTab === 'marketplace' && (
           <LandMarketplace
-            parcels={parcels}
+            parcels={parcels.filter((p) => p.status === 'VERIFIED')}
             onBuyLand={handleBuyLand}
             onDelistLand={handleDelistLand}
             onOpenAuditTrail={(parcelId) => setAuditModalParcelId(parcelId)}
@@ -429,6 +527,7 @@ export const Home: React.FC = () => {
             parcels={parcels}
             onRegisterLand={handleRegisterLand}
             onApproveLand={handleApproveLand}
+            onRejectLand={handleRejectLand}
             connectedAddress={activeAddress}
           />
         )}

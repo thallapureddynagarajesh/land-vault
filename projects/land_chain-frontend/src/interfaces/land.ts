@@ -1,28 +1,58 @@
+/**
+ * LandVault Property & Smart Contract Data Interfaces
+ */
+
+export type VerificationStatus = 'PENDING' | 'VERIFIED' | 'REJECTED'
+
+export interface OwnershipHistoryRecord {
+  previousOwner: string
+  newOwner: string
+  timestamp: number
+  transactionId?: string
+}
+
 export interface LandParcel {
   parcelId: string
+  surveyNumber: string
   location: string
   areaSqft: number
-  propertyType: 'Residential' | 'Commercial' | 'Agricultural' | 'Industrial'
-  documentType: string // e.g. "Sale Deed", "Title Deed", "Ownership Certificate", "Registration Certificate"
+  propertyType: string
+  documentType: string
   owner: string
   isApproved: boolean
   isForSale: boolean
   priceMicroAlgos: number
-  ipfsCid: string // IPFS Content Identifier
-  documentHash: string // SHA-256 cryptographic document hash
+  ipfsCid: string
+  documentHash: string
   createdAt: number
   lastTransferAt: number
   transactionId?: string
+  status: VerificationStatus
+  verifiedBy?: string
+  verificationTimestamp?: number
+  rejectionReason?: string
+  transferCount?: number
+  ownershipHistory?: OwnershipHistoryRecord[]
 }
 
 export interface AuditEvent {
   id: string
   parcelId: string
-  eventType: 'REGISTRATION' | 'GOV_APPROVAL' | 'LISTED_FOR_SALE' | 'OWNERSHIP_TRANSFER' | 'PURCHASE' | 'DELISTED'
+  eventType: string
   fromAddress?: string
   toAddress?: string
   priceAlgos?: number
   timestamp: number
   blockRound: number
   txHash: string
+}
+
+export interface AuditTrailEvent {
+  parcelId: string
+  eventType: 'REGISTRATION_SUBMITTED' | 'REGISTRAR_APPROVED' | 'REGISTRAR_REJECTED' | 'LISTED_FOR_SALE' | 'OWNERSHIP_TRANSFERRED' | 'DELISTED'
+  actorAddress: string
+  timestamp: number
+  txId: string
+  blockRound: number
+  details: string
 }

@@ -3,22 +3,22 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 2 0 1 8
-    bytecblock "admin" "parcels" 0x00 0x004d 0x151f7c75 0x0000000000000000
-    // smart_contracts/land_contract/contract.py:31
+    intcblock 2 0 8 1 137 129
+    bytecblock "parcels" "admin" 0x0089 0x00 0x0000000000000000 0x151f7c75 0x0000 0x000000000000000000 0x0000000000000001
+    // smart_contracts/land_contract/contract.py:37
     // class LandContract(ARC4Contract):
     txn OnCompletion
     !
     assert
     txn ApplicationID
-    bz main_create_NoOp@17
-    pushbytess 0x346b3dbc 0x44f2c1be 0x45269bec 0xc14b24c5 0xf562fc3f 0xdfe9246a 0x9c5f7bd5 0x9aad6707 0xcbdb3443 0x816b601b 0xc074c16e // method "get_admin()address", method "set_admin(address)void", method "register_land(string,string,uint64,string,string,address,string,string)void", method "approve_land(string)void", method "list_for_sale(string,uint64)void", method "delist_land(string)void", method "transfer_ownership(string,address)void", method "buy_land(string,pay)void", method "get_land(string)(string,string,uint64,string,string,address,bool,bool,uint64,string,string,uint64,uint64)", method "is_land_registered(string)bool", method "delete_land(string)void"
+    bz main_create_NoOp@19
+    pushbytess 0x346b3dbc 0x44f2c1be 0x3642d0d3 0x45269bec 0xc14b24c5 0x5ca1d2a8 0xf562fc3f 0xdfe9246a 0x9c5f7bd5 0x9aad6707 0xe66f8935 0x816b601b 0xc074c16e // method "get_admin()address", method "set_admin(address)void", method "submit_land(string,string,string,uint64,string,string,address,string,string)void", method "register_land(string,string,uint64,string,string,address,string,string)void", method "approve_land(string)void", method "reject_land(string,string)void", method "list_for_sale(string,uint64)void", method "delist_land(string)void", method "transfer_ownership(string,address)void", method "buy_land(string,pay)void", method "get_land(string)(string,string,string,uint64,string,string,address,bool,bool,uint64,string,string,uint64,uint64,uint64,address,uint64,string,uint64)", method "is_land_registered(string)bool", method "delete_land(string)void"
     txna ApplicationArgs 0
-    match get_admin set_admin register_land approve_land list_for_sale delist_land transfer_ownership buy_land get_land is_land_registered delete_land
+    match get_admin set_admin submit_land register_land approve_land reject_land list_for_sale delist_land transfer_ownership buy_land get_land is_land_registered delete_land
     err
 
-main_create_NoOp@17:
-    // smart_contracts/land_contract/contract.py:31
+main_create_NoOp@19:
+    // smart_contracts/land_contract/contract.py:37
     // class LandContract(ARC4Contract):
     pushbytes 0x752c3ac0 // method "create_application()void"
     txna ApplicationArgs 0
@@ -28,38 +28,38 @@ main_create_NoOp@17:
 
 // smart_contracts.land_contract.contract.LandContract.create_application[routing]() -> void:
 create_application:
-    // smart_contracts/land_contract/contract.py:38
+    // smart_contracts/land_contract/contract.py:44
     // self.admin.value = Txn.sender
-    bytec_0 // "admin"
+    bytec_1 // "admin"
     txn Sender
     app_global_put
-    // smart_contracts/land_contract/contract.py:36
+    // smart_contracts/land_contract/contract.py:42
     // @arc4.abimethod(create="require")
-    intc_2 // 1
+    intc_3 // 1
     return
 
 
 // smart_contracts.land_contract.contract.LandContract.get_admin[routing]() -> void:
 get_admin:
-    // smart_contracts/land_contract/contract.py:42
+    // smart_contracts/land_contract/contract.py:48
     // return self.admin.value
     intc_1 // 0
-    bytec_0 // "admin"
+    bytec_1 // "admin"
     app_global_get_ex
     assert // check self.admin exists
-    // smart_contracts/land_contract/contract.py:40
+    // smart_contracts/land_contract/contract.py:46
     // @arc4.abimethod()
-    bytec 4 // 0x151f7c75
+    bytec 5 // 0x151f7c75
     swap
     concat
     log
-    intc_2 // 1
+    intc_3 // 1
     return
 
 
 // smart_contracts.land_contract.contract.LandContract.set_admin[routing]() -> void:
 set_admin:
-    // smart_contracts/land_contract/contract.py:44
+    // smart_contracts/land_contract/contract.py:50
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -67,29 +67,371 @@ set_admin:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/land_contract/contract.py:46
+    // smart_contracts/land_contract/contract.py:52
     // assert Txn.sender == self.admin.value, "Only admin can set new admin"
     txn Sender
     intc_1 // 0
-    bytec_0 // "admin"
+    bytec_1 // "admin"
     app_global_get_ex
     assert // check self.admin exists
     ==
     assert // Only admin can set new admin
-    // smart_contracts/land_contract/contract.py:47
+    // smart_contracts/land_contract/contract.py:53
     // self.admin.value = new_admin
-    bytec_0 // "admin"
+    bytec_1 // "admin"
     swap
     app_global_put
-    // smart_contracts/land_contract/contract.py:44
+    // smart_contracts/land_contract/contract.py:50
     // @arc4.abimethod()
-    intc_2 // 1
+    intc_3 // 1
+    return
+
+
+// smart_contracts.land_contract.contract.LandContract.submit_land[routing]() -> void:
+submit_land:
+    // smart_contracts/land_contract/contract.py:55
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    dig 1
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 3
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 5
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 6
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 7
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 8
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 9
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/land_contract/contract.py:68
+    // assert parcel_id not in self.parcels, "Parcel ID already registered"
+    bytec_0 // "parcels"
+    uncover 15
+    concat
+    dup
+    box_len
+    bury 1
+    !
+    assert // Parcel ID already registered
+    // smart_contracts/land_contract/contract.py:70
+    // now = Global.latest_timestamp
+    global LatestTimestamp
+    // smart_contracts/land_contract/contract.py:84
+    // created_at=arc4.UInt64(now),
+    itob
+    // smart_contracts/land_contract/contract.py:71-91
+    // record = LandRecord(
+    //     parcel_id=arc4.String(parcel_id),
+    //     survey_number=arc4.String(survey_number),
+    //     location=arc4.String(location),
+    //     area_sqft=arc4.UInt64(area_sqft),
+    //     property_type=arc4.String(property_type),
+    //     document_type=arc4.String(document_type),
+    //     owner=arc4.Address(owner),
+    //     is_approved=arc4.Bool(False),
+    //     is_for_sale=arc4.Bool(False),
+    //     price_microalgos=arc4.UInt64(0),
+    //     ipfs_cid=arc4.String(ipfs_cid),
+    //     document_hash=arc4.String(document_hash),
+    //     created_at=arc4.UInt64(now),
+    //     last_transfer_at=arc4.UInt64(now),
+    //     status=arc4.UInt64(0),  # PENDING = 0
+    //     verified_by=arc4.Address(owner),  # placeholder until verified
+    //     verification_timestamp=arc4.UInt64(0),
+    //     rejection_reason=arc4.String(""),
+    //     transfer_count=arc4.UInt64(0),
+    // )
+    intc 4 // 137
+    uncover 17
+    +
+    dup
+    itob
+    extract 6 2
+    bytec_2 // 0x0089
+    swap
+    concat
+    swap
+    uncover 16
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    uncover 14
+    +
+    swap
+    uncover 13
+    concat
+    dig 1
+    itob
+    extract 6 2
+    concat
+    swap
+    uncover 11
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    uncover 9
+    +
+    swap
+    dig 8
+    concat
+    bytec 7 // 0x000000000000000000
+    concat
+    dig 1
+    itob
+    extract 6 2
+    concat
+    swap
+    uncover 6
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    uncover 4
+    +
+    swap
+    dig 2
+    concat
+    uncover 2
+    concat
+    // smart_contracts/land_contract/contract.py:86
+    // status=arc4.UInt64(0),  # PENDING = 0
+    bytec 4 // 0x0000000000000000
+    // smart_contracts/land_contract/contract.py:71-91
+    // record = LandRecord(
+    //     parcel_id=arc4.String(parcel_id),
+    //     survey_number=arc4.String(survey_number),
+    //     location=arc4.String(location),
+    //     area_sqft=arc4.UInt64(area_sqft),
+    //     property_type=arc4.String(property_type),
+    //     document_type=arc4.String(document_type),
+    //     owner=arc4.Address(owner),
+    //     is_approved=arc4.Bool(False),
+    //     is_for_sale=arc4.Bool(False),
+    //     price_microalgos=arc4.UInt64(0),
+    //     ipfs_cid=arc4.String(ipfs_cid),
+    //     document_hash=arc4.String(document_hash),
+    //     created_at=arc4.UInt64(now),
+    //     last_transfer_at=arc4.UInt64(now),
+    //     status=arc4.UInt64(0),  # PENDING = 0
+    //     verified_by=arc4.Address(owner),  # placeholder until verified
+    //     verification_timestamp=arc4.UInt64(0),
+    //     rejection_reason=arc4.String(""),
+    //     transfer_count=arc4.UInt64(0),
+    // )
+    concat
+    uncover 5
+    concat
+    // smart_contracts/land_contract/contract.py:88
+    // verification_timestamp=arc4.UInt64(0),
+    bytec 4 // 0x0000000000000000
+    // smart_contracts/land_contract/contract.py:71-91
+    // record = LandRecord(
+    //     parcel_id=arc4.String(parcel_id),
+    //     survey_number=arc4.String(survey_number),
+    //     location=arc4.String(location),
+    //     area_sqft=arc4.UInt64(area_sqft),
+    //     property_type=arc4.String(property_type),
+    //     document_type=arc4.String(document_type),
+    //     owner=arc4.Address(owner),
+    //     is_approved=arc4.Bool(False),
+    //     is_for_sale=arc4.Bool(False),
+    //     price_microalgos=arc4.UInt64(0),
+    //     ipfs_cid=arc4.String(ipfs_cid),
+    //     document_hash=arc4.String(document_hash),
+    //     created_at=arc4.UInt64(now),
+    //     last_transfer_at=arc4.UInt64(now),
+    //     status=arc4.UInt64(0),  # PENDING = 0
+    //     verified_by=arc4.Address(owner),  # placeholder until verified
+    //     verification_timestamp=arc4.UInt64(0),
+    //     rejection_reason=arc4.String(""),
+    //     transfer_count=arc4.UInt64(0),
+    // )
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    // smart_contracts/land_contract/contract.py:90
+    // transfer_count=arc4.UInt64(0),
+    bytec 4 // 0x0000000000000000
+    // smart_contracts/land_contract/contract.py:71-91
+    // record = LandRecord(
+    //     parcel_id=arc4.String(parcel_id),
+    //     survey_number=arc4.String(survey_number),
+    //     location=arc4.String(location),
+    //     area_sqft=arc4.UInt64(area_sqft),
+    //     property_type=arc4.String(property_type),
+    //     document_type=arc4.String(document_type),
+    //     owner=arc4.Address(owner),
+    //     is_approved=arc4.Bool(False),
+    //     is_for_sale=arc4.Bool(False),
+    //     price_microalgos=arc4.UInt64(0),
+    //     ipfs_cid=arc4.String(ipfs_cid),
+    //     document_hash=arc4.String(document_hash),
+    //     created_at=arc4.UInt64(now),
+    //     last_transfer_at=arc4.UInt64(now),
+    //     status=arc4.UInt64(0),  # PENDING = 0
+    //     verified_by=arc4.Address(owner),  # placeholder until verified
+    //     verification_timestamp=arc4.UInt64(0),
+    //     rejection_reason=arc4.String(""),
+    //     transfer_count=arc4.UInt64(0),
+    // )
+    concat
+    uncover 8
+    concat
+    uncover 7
+    concat
+    uncover 6
+    concat
+    uncover 5
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    // smart_contracts/land_contract/contract.py:89
+    // rejection_reason=arc4.String(""),
+    bytec 6 // 0x0000
+    // smart_contracts/land_contract/contract.py:71-91
+    // record = LandRecord(
+    //     parcel_id=arc4.String(parcel_id),
+    //     survey_number=arc4.String(survey_number),
+    //     location=arc4.String(location),
+    //     area_sqft=arc4.UInt64(area_sqft),
+    //     property_type=arc4.String(property_type),
+    //     document_type=arc4.String(document_type),
+    //     owner=arc4.Address(owner),
+    //     is_approved=arc4.Bool(False),
+    //     is_for_sale=arc4.Bool(False),
+    //     price_microalgos=arc4.UInt64(0),
+    //     ipfs_cid=arc4.String(ipfs_cid),
+    //     document_hash=arc4.String(document_hash),
+    //     created_at=arc4.UInt64(now),
+    //     last_transfer_at=arc4.UInt64(now),
+    //     status=arc4.UInt64(0),  # PENDING = 0
+    //     verified_by=arc4.Address(owner),  # placeholder until verified
+    //     verification_timestamp=arc4.UInt64(0),
+    //     rejection_reason=arc4.String(""),
+    //     transfer_count=arc4.UInt64(0),
+    // )
+    concat
+    // smart_contracts/land_contract/contract.py:92
+    // self.parcels[parcel_id] = record.copy()
+    dig 1
+    box_del
+    pop
+    box_put
+    // smart_contracts/land_contract/contract.py:55
+    // @arc4.abimethod()
+    intc_3 // 1
     return
 
 
 // smart_contracts.land_contract.contract.LandContract.register_land[routing]() -> void:
 register_land:
-    // smart_contracts/land_contract/contract.py:49
+    // smart_contracts/land_contract/contract.py:94
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -120,7 +462,7 @@ register_land:
     txna ApplicationArgs 3
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 4
@@ -173,36 +515,49 @@ register_land:
     +
     dig 1
     len
+    dup
+    uncover 2
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // smart_contracts/land_contract/contract.py:61
-    // assert Txn.sender == self.admin.value, "Only admin can register land"
-    txn Sender
-    intc_1 // 0
-    bytec_0 // "admin"
-    app_global_get_ex
-    assert // check self.admin exists
-    ==
-    assert // Only admin can register land
-    // smart_contracts/land_contract/contract.py:62
+    // smart_contracts/land_contract/contract.py:106-107
+    // # Legacy/Admin direct land registration compatibility method
     // assert parcel_id not in self.parcels, "Parcel ID already registered"
-    bytec_1 // "parcels"
-    uncover 12
+    bytec_0 // "parcels"
+    dig 13
     concat
     dup
     box_len
     bury 1
     !
     assert // Parcel ID already registered
-    // smart_contracts/land_contract/contract.py:64
+    // smart_contracts/land_contract/contract.py:109
     // now = Global.latest_timestamp
     global LatestTimestamp
-    // smart_contracts/land_contract/contract.py:77
-    // created_at=arc4.UInt64(now),
+    // smart_contracts/land_contract/contract.py:112
+    // survey_number=arc4.String(String("SURVEY-") + parcel_id),
+    pushbytes "SURVEY-"
+    uncover 15
+    concat
+    dup
+    len
     itob
-    // smart_contracts/land_contract/contract.py:65-79
+    extract 6 2
+    swap
+    concat
+    // smart_contracts/land_contract/contract.py:123
+    // created_at=arc4.UInt64(now),
+    swap
+    itob
+    // smart_contracts/land_contract/contract.py:126
+    // verified_by=arc4.Address(self.admin.value),
+    intc_1 // 0
+    bytec_1 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    // smart_contracts/land_contract/contract.py:110-130
     // record = LandRecord(
     //     parcel_id=arc4.String(parcel_id),
+    //     survey_number=arc4.String(String("SURVEY-") + parcel_id),
     //     location=arc4.String(location),
     //     area_sqft=arc4.UInt64(area_sqft),
     //     property_type=arc4.String(property_type),
@@ -215,28 +570,24 @@ register_land:
     //     document_hash=arc4.String(document_hash),
     //     created_at=arc4.UInt64(now),
     //     last_transfer_at=arc4.UInt64(now),
+    //     status=arc4.UInt64(1),  # VERIFIED = 1
+    //     verified_by=arc4.Address(self.admin.value),
+    //     verification_timestamp=arc4.UInt64(now),
+    //     rejection_reason=arc4.String(""),
+    //     transfer_count=arc4.UInt64(0),
     // )
-    pushint 77
-    uncover 14
+    intc 4 // 137
+    uncover 17
     +
     dup
     itob
     extract 6 2
-    bytec_3 // 0x004d
+    bytec_2 // 0x0089
     swap
     concat
-    swap
-    uncover 13
-    +
-    swap
-    uncover 12
-    concat
-    dig 1
-    itob
-    extract 6 2
-    concat
-    swap
-    uncover 10
+    dig 4
+    len
+    uncover 2
     +
     dup
     itob
@@ -245,10 +596,29 @@ register_land:
     swap
     concat
     swap
-    uncover 8
+    uncover 16
     +
     swap
-    uncover 7
+    uncover 15
+    concat
+    dig 1
+    itob
+    extract 6 2
+    concat
+    swap
+    uncover 13
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    uncover 11
+    +
+    swap
+    uncover 10
     concat
     pushbytes 0x800000000000000000
     concat
@@ -257,16 +627,85 @@ register_land:
     extract 6 2
     concat
     swap
-    uncover 5
+    uncover 8
     +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    uncover 6
+    +
+    swap
+    dig 3
+    concat
+    dig 3
+    concat
+    // smart_contracts/land_contract/contract.py:125
+    // status=arc4.UInt64(1),  # VERIFIED = 1
+    bytec 8 // 0x0000000000000001
+    // smart_contracts/land_contract/contract.py:110-130
+    // record = LandRecord(
+    //     parcel_id=arc4.String(parcel_id),
+    //     survey_number=arc4.String(String("SURVEY-") + parcel_id),
+    //     location=arc4.String(location),
+    //     area_sqft=arc4.UInt64(area_sqft),
+    //     property_type=arc4.String(property_type),
+    //     document_type=arc4.String(document_type),
+    //     owner=arc4.Address(owner),
+    //     is_approved=arc4.Bool(True),
+    //     is_for_sale=arc4.Bool(False),
+    //     price_microalgos=arc4.UInt64(0),
+    //     ipfs_cid=arc4.String(ipfs_cid),
+    //     document_hash=arc4.String(document_hash),
+    //     created_at=arc4.UInt64(now),
+    //     last_transfer_at=arc4.UInt64(now),
+    //     status=arc4.UInt64(1),  # VERIFIED = 1
+    //     verified_by=arc4.Address(self.admin.value),
+    //     verification_timestamp=arc4.UInt64(now),
+    //     rejection_reason=arc4.String(""),
+    //     transfer_count=arc4.UInt64(0),
+    // )
+    concat
+    uncover 2
+    concat
+    uncover 2
+    concat
+    swap
     itob
     extract 6 2
     concat
-    dig 1
+    // smart_contracts/land_contract/contract.py:129
+    // transfer_count=arc4.UInt64(0),
+    bytec 4 // 0x0000000000000000
+    // smart_contracts/land_contract/contract.py:110-130
+    // record = LandRecord(
+    //     parcel_id=arc4.String(parcel_id),
+    //     survey_number=arc4.String(String("SURVEY-") + parcel_id),
+    //     location=arc4.String(location),
+    //     area_sqft=arc4.UInt64(area_sqft),
+    //     property_type=arc4.String(property_type),
+    //     document_type=arc4.String(document_type),
+    //     owner=arc4.Address(owner),
+    //     is_approved=arc4.Bool(True),
+    //     is_for_sale=arc4.Bool(False),
+    //     price_microalgos=arc4.UInt64(0),
+    //     ipfs_cid=arc4.String(ipfs_cid),
+    //     document_hash=arc4.String(document_hash),
+    //     created_at=arc4.UInt64(now),
+    //     last_transfer_at=arc4.UInt64(now),
+    //     status=arc4.UInt64(1),  # VERIFIED = 1
+    //     verified_by=arc4.Address(self.admin.value),
+    //     verification_timestamp=arc4.UInt64(now),
+    //     rejection_reason=arc4.String(""),
+    //     transfer_count=arc4.UInt64(0),
+    // )
+    concat
+    uncover 8
     concat
     swap
-    concat
-    uncover 7
     concat
     uncover 6
     concat
@@ -278,21 +717,47 @@ register_land:
     concat
     uncover 2
     concat
-    // smart_contracts/land_contract/contract.py:80
+    // smart_contracts/land_contract/contract.py:128
+    // rejection_reason=arc4.String(""),
+    bytec 6 // 0x0000
+    // smart_contracts/land_contract/contract.py:110-130
+    // record = LandRecord(
+    //     parcel_id=arc4.String(parcel_id),
+    //     survey_number=arc4.String(String("SURVEY-") + parcel_id),
+    //     location=arc4.String(location),
+    //     area_sqft=arc4.UInt64(area_sqft),
+    //     property_type=arc4.String(property_type),
+    //     document_type=arc4.String(document_type),
+    //     owner=arc4.Address(owner),
+    //     is_approved=arc4.Bool(True),
+    //     is_for_sale=arc4.Bool(False),
+    //     price_microalgos=arc4.UInt64(0),
+    //     ipfs_cid=arc4.String(ipfs_cid),
+    //     document_hash=arc4.String(document_hash),
+    //     created_at=arc4.UInt64(now),
+    //     last_transfer_at=arc4.UInt64(now),
+    //     status=arc4.UInt64(1),  # VERIFIED = 1
+    //     verified_by=arc4.Address(self.admin.value),
+    //     verification_timestamp=arc4.UInt64(now),
+    //     rejection_reason=arc4.String(""),
+    //     transfer_count=arc4.UInt64(0),
+    // )
+    concat
+    // smart_contracts/land_contract/contract.py:131
     // self.parcels[parcel_id] = record.copy()
     dig 1
     box_del
     pop
     box_put
-    // smart_contracts/land_contract/contract.py:49
+    // smart_contracts/land_contract/contract.py:94
     // @arc4.abimethod()
-    intc_2 // 1
+    intc_3 // 1
     return
 
 
 // smart_contracts.land_contract.contract.LandContract.approve_land[routing]() -> void:
 approve_land:
-    // smart_contracts/land_contract/contract.py:82
+    // smart_contracts/land_contract/contract.py:133
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -305,64 +770,73 @@ approve_land:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/land_contract/contract.py:84
-    // assert Txn.sender == self.admin.value, "Only admin can approve land"
+    // smart_contracts/land_contract/contract.py:135
+    // assert Txn.sender == self.admin.value, "Only authorized registrar can approve land"
     txn Sender
     intc_1 // 0
-    bytec_0 // "admin"
+    bytec_1 // "admin"
     app_global_get_ex
     assert // check self.admin exists
     ==
-    assert // Only admin can approve land
-    // smart_contracts/land_contract/contract.py:85
+    assert // Only authorized registrar can approve land
+    // smart_contracts/land_contract/contract.py:136
     // assert parcel_id in self.parcels, "Parcel ID does not exist"
-    bytec_1 // "parcels"
+    bytec_0 // "parcels"
     swap
     concat
     dup
     box_len
     bury 1
     assert // Parcel ID does not exist
-    // smart_contracts/land_contract/contract.py:89
-    // parcel_id=record.parcel_id,
+    // smart_contracts/land_contract/contract.py:138-139
+    // record = self.parcels[parcel_id].copy()
+    // assert record.status.as_uint64() == 0, "Land registration is not PENDING approval"
     dup
-    pushint 77
+    pushint 79
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:139
+    // assert record.status.as_uint64() == 0, "Land registration is not PENDING approval"
+    btoi
+    !
+    assert // Land registration is not PENDING approval
+    // smart_contracts/land_contract/contract.py:141
+    // now = Global.latest_timestamp
+    global LatestTimestamp
+    // smart_contracts/land_contract/contract.py:143
+    // parcel_id=record.parcel_id,
+    dig 1
+    intc 4 // 137
     intc_0 // 2
     box_extract
     btoi
     intc_0 // 2
     +
-    dig 1
-    pushint 77
+    dig 2
+    intc 4 // 137
     uncover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:90
-    // location=record.location,
-    dig 1
+    // smart_contracts/land_contract/contract.py:144
+    // survey_number=record.survey_number,
+    dig 2
     intc_0 // 2
     dup
     box_extract
     btoi
-    dig 2
+    dig 3
     dig 1
     intc_0 // 2
     box_extract
     btoi
     intc_0 // 2
     +
-    dig 3
+    dig 4
     cover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:91
-    // area_sqft=record.area_sqft,
-    dig 2
-    pushint 4
-    intc_3 // 8
-    box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:92
-    // property_type=record.property_type,
+    // smart_contracts/land_contract/contract.py:145
+    // location=record.location,
     dig 3
-    pushint 12
+    pushint 4
     intc_0 // 2
     box_extract
     btoi
@@ -376,95 +850,132 @@ approve_land:
     dig 5
     cover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:93
-    // document_type=record.document_type,
+    // smart_contracts/land_contract/contract.py:146
+    // area_sqft=record.area_sqft,
     dig 4
+    pushint 6
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:147
+    // property_type=record.property_type,
+    dig 5
     pushint 14
     intc_0 // 2
     box_extract
     btoi
-    dig 5
+    dig 6
     dig 1
     intc_0 // 2
     box_extract
     btoi
     intc_0 // 2
     +
-    dig 6
+    dig 7
     cover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:94
-    // owner=record.owner,
-    dig 5
-    pushints 16 32
-    box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:96
-    // is_for_sale=record.is_for_sale,
+    // smart_contracts/land_contract/contract.py:148
+    // document_type=record.document_type,
     dig 6
-    pushint 48
-    intc_2 // 1
+    pushint 16
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 7
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 8
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:149
+    // owner=record.owner,
+    dig 7
+    pushints 18 32
     box_extract // on error: index out of bounds
-    intc_2 // 1
+    // smart_contracts/land_contract/contract.py:151
+    // is_for_sale=record.is_for_sale,
+    dig 8
+    pushint 50
+    intc_3 // 1
+    box_extract // on error: index out of bounds
+    intc_3 // 1
     getbit
-    bytec_2 // 0x00
+    bytec_3 // 0x00
     intc_1 // 0
     uncover 2
     setbit
-    // smart_contracts/land_contract/contract.py:97
+    // smart_contracts/land_contract/contract.py:152
     // price_microalgos=record.price_microalgos,
-    dig 7
-    pushint 49
-    intc_3 // 8
+    dig 9
+    pushint 51
+    intc_2 // 8
     box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:98
+    // smart_contracts/land_contract/contract.py:153
     // ipfs_cid=record.ipfs_cid,
-    dig 8
-    pushint 57
-    intc_0 // 2
-    box_extract
-    btoi
-    dig 9
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_0 // 2
-    +
     dig 10
-    cover 2
-    box_extract
-    // smart_contracts/land_contract/contract.py:99
-    // document_hash=record.document_hash,
-    dig 9
     pushint 59
     intc_0 // 2
     box_extract
     btoi
-    dig 10
+    dig 11
     dig 1
     intc_0 // 2
     box_extract
     btoi
     intc_0 // 2
     +
-    dig 11
+    dig 12
     cover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:100
-    // created_at=record.created_at,
-    dig 10
-    pushint 61
-    intc_3 // 8
-    box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:101
-    // last_transfer_at=record.last_transfer_at,
+    // smart_contracts/land_contract/contract.py:154
+    // document_hash=record.document_hash,
     dig 11
-    pushint 69
-    intc_3 // 8
+    pushint 61
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 12
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 13
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:155
+    // created_at=record.created_at,
+    dig 12
+    pushint 63
+    intc_2 // 8
     box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:88-102
+    // smart_contracts/land_contract/contract.py:156
+    // last_transfer_at=record.last_transfer_at,
+    dig 13
+    pushint 71
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:158
+    // verified_by=arc4.Address(Txn.sender),
+    txn Sender
+    // smart_contracts/land_contract/contract.py:159
+    // verification_timestamp=arc4.UInt64(now),
+    uncover 14
+    itob
+    // smart_contracts/land_contract/contract.py:161
+    // transfer_count=record.transfer_count,
+    dig 15
+    intc 5 // 129
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:142-162
     // updated_record = LandRecord(
     //     parcel_id=record.parcel_id,
+    //     survey_number=record.survey_number,
     //     location=record.location,
     //     area_sqft=record.area_sqft,
     //     property_type=record.property_type,
@@ -477,15 +988,51 @@ approve_land:
     //     document_hash=record.document_hash,
     //     created_at=record.created_at,
     //     last_transfer_at=record.last_transfer_at,
+    //     status=arc4.UInt64(1),  # VERIFIED = 1
+    //     verified_by=arc4.Address(Txn.sender),
+    //     verification_timestamp=arc4.UInt64(now),
+    //     rejection_reason=arc4.String(""),
+    //     transfer_count=record.transfer_count,
     // )
-    dig 11
+    dig 15
     len
-    pushint 77
+    intc 4 // 137
     +
     dup
     itob
     extract 6 2
-    bytec_3 // 0x004d
+    bytec_2 // 0x0089
+    swap
+    concat
+    dig 16
+    len
+    uncover 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    dig 15
+    len
+    uncover 2
+    +
+    swap
+    uncover 14
+    concat
+    dig 1
+    itob
+    extract 6 2
+    concat
+    dig 13
+    len
+    uncover 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
     swap
     concat
     dig 12
@@ -495,36 +1042,16 @@ approve_land:
     swap
     uncover 11
     concat
-    dig 1
-    itob
-    extract 6 2
-    concat
-    dig 10
-    len
-    uncover 2
-    +
-    dup
-    itob
-    extract 6 2
-    uncover 2
-    swap
-    concat
-    dig 9
-    len
-    uncover 2
-    +
-    swap
-    uncover 8
-    concat
-    uncover 7
+    uncover 10
     intc_1 // 0
     getbit
-    // smart_contracts/land_contract/contract.py:95
+    // smart_contracts/land_contract/contract.py:150
     // is_approved=arc4.Bool(True),
     pushbytes 0x80
-    // smart_contracts/land_contract/contract.py:88-102
+    // smart_contracts/land_contract/contract.py:142-162
     // updated_record = LandRecord(
     //     parcel_id=record.parcel_id,
+    //     survey_number=record.survey_number,
     //     location=record.location,
     //     area_sqft=record.area_sqft,
     //     property_type=record.property_type,
@@ -537,545 +1064,16 @@ approve_land:
     //     document_hash=record.document_hash,
     //     created_at=record.created_at,
     //     last_transfer_at=record.last_transfer_at,
+    //     status=arc4.UInt64(1),  # VERIFIED = 1
+    //     verified_by=arc4.Address(Txn.sender),
+    //     verification_timestamp=arc4.UInt64(now),
+    //     rejection_reason=arc4.String(""),
+    //     transfer_count=record.transfer_count,
     // )
-    intc_2 // 1
+    intc_3 // 1
     uncover 2
     setbit
     concat
-    uncover 6
-    concat
-    dig 1
-    itob
-    extract 6 2
-    concat
-    dig 5
-    len
-    uncover 2
-    +
-    itob
-    extract 6 2
-    concat
-    uncover 2
-    concat
-    swap
-    concat
-    uncover 6
-    concat
-    uncover 5
-    concat
-    uncover 4
-    concat
-    uncover 3
-    concat
-    uncover 2
-    concat
-    swap
-    concat
-    // smart_contracts/land_contract/contract.py:103
-    // self.parcels[parcel_id] = updated_record.copy()
-    dig 1
-    box_del
-    pop
-    box_put
-    // smart_contracts/land_contract/contract.py:82
-    // @arc4.abimethod()
-    intc_2 // 1
-    return
-
-
-// smart_contracts.land_contract.contract.LandContract.list_for_sale[routing]() -> void:
-list_for_sale:
-    // smart_contracts/land_contract/contract.py:105
-    // @arc4.abimethod()
-    txna ApplicationArgs 1
-    dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_0 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    txna ApplicationArgs 2
-    dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    dup
-    btoi
-    // smart_contracts/land_contract/contract.py:107
-    // assert parcel_id in self.parcels, "Parcel ID does not exist"
-    bytec_1 // "parcels"
-    uncover 3
-    concat
-    dup
-    box_len
-    bury 1
-    assert // Parcel ID does not exist
-    // smart_contracts/land_contract/contract.py:110
-    // arc4.Address(Txn.sender) == record.owner
-    txn Sender
-    dig 1
-    pushints 16 32
-    box_extract // on error: index out of bounds
-    swap
-    dig 1
-    ==
-    // smart_contracts/land_contract/contract.py:109-111
-    // assert (
-    //     arc4.Address(Txn.sender) == record.owner
-    // ), "Only land owner can list land for sale"
-    assert // Only land owner can list land for sale
-    // smart_contracts/land_contract/contract.py:112
-    // assert bool(record.is_approved), "Land must be government approved before listing"
-    dig 1
-    pushint 48
-    intc_2 // 1
-    box_extract // on error: index out of bounds
-    intc_1 // 0
-    getbit
-    bytec_2 // 0x00
-    intc_1 // 0
-    uncover 2
-    setbit
-    dup
-    bytec_2 // 0x00
-    !=
-    assert // Land must be government approved before listing
-    // smart_contracts/land_contract/contract.py:113
-    // assert price_microalgos > 0, "Price must be greater than zero"
-    uncover 3
-    assert // Price must be greater than zero
-    // smart_contracts/land_contract/contract.py:116
-    // parcel_id=record.parcel_id,
-    dig 2
-    pushint 77
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_0 // 2
-    +
-    dig 3
-    pushint 77
-    uncover 2
-    box_extract
-    // smart_contracts/land_contract/contract.py:117
-    // location=record.location,
-    dig 3
-    intc_0 // 2
-    dup
-    box_extract
-    btoi
-    dig 4
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_0 // 2
-    +
-    dig 5
-    cover 2
-    box_extract
-    // smart_contracts/land_contract/contract.py:118
-    // area_sqft=record.area_sqft,
-    dig 4
-    pushint 4
-    intc_3 // 8
-    box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:119
-    // property_type=record.property_type,
-    dig 5
-    pushint 12
-    intc_0 // 2
-    box_extract
-    btoi
-    dig 6
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_0 // 2
-    +
-    dig 7
-    cover 2
-    box_extract
-    // smart_contracts/land_contract/contract.py:120
-    // document_type=record.document_type,
-    dig 6
-    pushint 14
-    intc_0 // 2
-    box_extract
-    btoi
-    dig 7
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_0 // 2
-    +
-    dig 8
-    cover 2
-    box_extract
-    // smart_contracts/land_contract/contract.py:125
-    // ipfs_cid=record.ipfs_cid,
-    dig 7
-    pushint 57
-    intc_0 // 2
-    box_extract
-    btoi
-    dig 8
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_0 // 2
-    +
-    dig 9
-    cover 2
-    box_extract
-    // smart_contracts/land_contract/contract.py:126
-    // document_hash=record.document_hash,
-    dig 8
-    pushint 59
-    intc_0 // 2
-    box_extract
-    btoi
-    dig 9
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_0 // 2
-    +
-    dig 10
-    cover 2
-    box_extract
-    // smart_contracts/land_contract/contract.py:127
-    // created_at=record.created_at,
-    dig 9
-    pushint 61
-    intc_3 // 8
-    box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:128
-    // last_transfer_at=record.last_transfer_at,
-    dig 10
-    pushint 69
-    intc_3 // 8
-    box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:115-129
-    // updated_record = LandRecord(
-    //     parcel_id=record.parcel_id,
-    //     location=record.location,
-    //     area_sqft=record.area_sqft,
-    //     property_type=record.property_type,
-    //     document_type=record.document_type,
-    //     owner=record.owner,
-    //     is_approved=record.is_approved,
-    //     is_for_sale=arc4.Bool(True),
-    //     price_microalgos=arc4.UInt64(price_microalgos),
-    //     ipfs_cid=record.ipfs_cid,
-    //     document_hash=record.document_hash,
-    //     created_at=record.created_at,
-    //     last_transfer_at=record.last_transfer_at,
-    // )
-    dig 8
-    len
-    pushint 77
-    +
-    dup
-    itob
-    extract 6 2
-    bytec_3 // 0x004d
-    swap
-    concat
-    dig 9
-    len
-    uncover 2
-    +
-    swap
-    uncover 8
-    concat
-    dig 1
-    itob
-    extract 6 2
-    concat
-    dig 7
-    len
-    uncover 2
-    +
-    dup
-    itob
-    extract 6 2
-    uncover 2
-    swap
-    concat
-    dig 6
-    len
-    uncover 2
-    +
-    swap
-    uncover 11
-    concat
-    uncover 10
-    intc_2 // 1
-    dup
-    setbit
-    concat
-    uncover 11
-    concat
-    dig 1
-    itob
-    extract 6 2
-    concat
-    dig 5
-    len
-    uncover 2
-    +
-    itob
-    extract 6 2
-    concat
-    uncover 2
-    concat
-    swap
-    concat
-    uncover 6
-    concat
-    uncover 5
-    concat
-    uncover 4
-    concat
-    uncover 3
-    concat
-    uncover 2
-    concat
-    swap
-    concat
-    // smart_contracts/land_contract/contract.py:130
-    // self.parcels[parcel_id] = updated_record.copy()
-    dig 1
-    box_del
-    pop
-    box_put
-    // smart_contracts/land_contract/contract.py:105
-    // @arc4.abimethod()
-    intc_2 // 1
-    return
-
-
-// smart_contracts.land_contract.contract.LandContract.delist_land[routing]() -> void:
-delist_land:
-    // smart_contracts/land_contract/contract.py:132
-    // @arc4.abimethod()
-    txna ApplicationArgs 1
-    dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_0 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    // smart_contracts/land_contract/contract.py:134
-    // assert parcel_id in self.parcels, "Parcel ID does not exist"
-    bytec_1 // "parcels"
-    swap
-    concat
-    dupn 2
-    box_len
-    bury 1
-    assert // Parcel ID does not exist
-    // smart_contracts/land_contract/contract.py:137
-    // arc4.Address(Txn.sender) == record.owner or Txn.sender == self.admin.value
-    txn Sender
-    swap
-    pushints 16 32
-    box_extract // on error: index out of bounds
-    dup
-    cover 2
-    ==
-    bnz delist_land_bool_true@3
-    txn Sender
-    intc_1 // 0
-    bytec_0 // "admin"
-    app_global_get_ex
-    assert // check self.admin exists
-    ==
-    bz delist_land_bool_false@4
-
-delist_land_bool_true@3:
-    intc_2 // 1
-
-delist_land_bool_merge@5:
-    // smart_contracts/land_contract/contract.py:136-138
-    // assert (
-    //     arc4.Address(Txn.sender) == record.owner or Txn.sender == self.admin.value
-    // ), "Only owner or admin can delist land"
-    assert // Only owner or admin can delist land
-    // smart_contracts/land_contract/contract.py:141
-    // parcel_id=record.parcel_id,
-    dig 1
-    dup
-    pushint 77
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_0 // 2
-    +
-    dig 1
-    pushint 77
-    uncover 2
-    box_extract
-    // smart_contracts/land_contract/contract.py:142
-    // location=record.location,
-    dig 1
-    intc_0 // 2
-    dup
-    box_extract
-    btoi
-    dig 2
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_0 // 2
-    +
-    dig 3
-    cover 2
-    box_extract
-    // smart_contracts/land_contract/contract.py:143
-    // area_sqft=record.area_sqft,
-    dig 2
-    pushint 4
-    intc_3 // 8
-    box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:144
-    // property_type=record.property_type,
-    dig 3
-    pushint 12
-    intc_0 // 2
-    box_extract
-    btoi
-    dig 4
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_0 // 2
-    +
-    dig 5
-    cover 2
-    box_extract
-    // smart_contracts/land_contract/contract.py:145
-    // document_type=record.document_type,
-    dig 4
-    pushint 14
-    intc_0 // 2
-    box_extract
-    btoi
-    dig 5
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_0 // 2
-    +
-    dig 6
-    cover 2
-    box_extract
-    // smart_contracts/land_contract/contract.py:147
-    // is_approved=record.is_approved,
-    dig 5
-    pushint 48
-    intc_2 // 1
-    box_extract // on error: index out of bounds
-    intc_1 // 0
-    getbit
-    bytec_2 // 0x00
-    intc_1 // 0
-    uncover 2
-    setbit
-    // smart_contracts/land_contract/contract.py:150
-    // ipfs_cid=record.ipfs_cid,
-    dig 6
-    pushint 57
-    intc_0 // 2
-    box_extract
-    btoi
-    dig 7
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_0 // 2
-    +
-    dig 8
-    cover 2
-    box_extract
-    // smart_contracts/land_contract/contract.py:151
-    // document_hash=record.document_hash,
-    dig 7
-    pushint 59
-    intc_0 // 2
-    box_extract
-    btoi
-    dig 8
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_0 // 2
-    +
-    dig 9
-    cover 2
-    box_extract
-    // smart_contracts/land_contract/contract.py:152
-    // created_at=record.created_at,
-    dig 8
-    pushint 61
-    intc_3 // 8
-    box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:153
-    // last_transfer_at=record.last_transfer_at,
-    dig 9
-    pushint 69
-    intc_3 // 8
-    box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:140-154
-    // updated_record = LandRecord(
-    //     parcel_id=record.parcel_id,
-    //     location=record.location,
-    //     area_sqft=record.area_sqft,
-    //     property_type=record.property_type,
-    //     document_type=record.document_type,
-    //     owner=record.owner,
-    //     is_approved=record.is_approved,
-    //     is_for_sale=arc4.Bool(False),
-    //     price_microalgos=arc4.UInt64(0),
-    //     ipfs_cid=record.ipfs_cid,
-    //     document_hash=record.document_hash,
-    //     created_at=record.created_at,
-    //     last_transfer_at=record.last_transfer_at,
-    // )
-    dig 9
-    len
-    pushint 77
-    +
-    dup
-    itob
-    extract 6 2
-    bytec_3 // 0x004d
-    swap
-    concat
-    dig 10
-    len
-    uncover 2
-    +
-    swap
     uncover 9
     concat
     dig 1
@@ -1097,47 +1095,47 @@ delist_land_bool_merge@5:
     uncover 2
     +
     swap
-    dig 12
-    concat
     uncover 6
-    intc_2 // 1
-    intc_1 // 0
-    setbit
     concat
-    // smart_contracts/land_contract/contract.py:149
-    // price_microalgos=arc4.UInt64(0),
-    bytec 5 // 0x0000000000000000
-    // smart_contracts/land_contract/contract.py:140-154
+    uncover 5
+    concat
+    // smart_contracts/land_contract/contract.py:157
+    // status=arc4.UInt64(1),  # VERIFIED = 1
+    bytec 8 // 0x0000000000000001
+    // smart_contracts/land_contract/contract.py:142-162
     // updated_record = LandRecord(
     //     parcel_id=record.parcel_id,
+    //     survey_number=record.survey_number,
     //     location=record.location,
     //     area_sqft=record.area_sqft,
     //     property_type=record.property_type,
     //     document_type=record.document_type,
     //     owner=record.owner,
-    //     is_approved=record.is_approved,
-    //     is_for_sale=arc4.Bool(False),
-    //     price_microalgos=arc4.UInt64(0),
+    //     is_approved=arc4.Bool(True),
+    //     is_for_sale=record.is_for_sale,
+    //     price_microalgos=record.price_microalgos,
     //     ipfs_cid=record.ipfs_cid,
     //     document_hash=record.document_hash,
     //     created_at=record.created_at,
     //     last_transfer_at=record.last_transfer_at,
+    //     status=arc4.UInt64(1),  # VERIFIED = 1
+    //     verified_by=arc4.Address(Txn.sender),
+    //     verification_timestamp=arc4.UInt64(now),
+    //     rejection_reason=arc4.String(""),
+    //     transfer_count=record.transfer_count,
     // )
     concat
-    dig 1
-    itob
-    extract 6 2
+    uncover 4
     concat
-    dig 5
-    len
-    uncover 2
-    +
-    itob
-    extract 6 2
-    concat
-    uncover 2
+    uncover 3
     concat
     swap
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    uncover 7
     concat
     uncover 6
     concat
@@ -1151,15 +1149,1190 @@ delist_land_bool_merge@5:
     concat
     swap
     concat
-    // smart_contracts/land_contract/contract.py:155
+    // smart_contracts/land_contract/contract.py:160
+    // rejection_reason=arc4.String(""),
+    bytec 6 // 0x0000
+    // smart_contracts/land_contract/contract.py:142-162
+    // updated_record = LandRecord(
+    //     parcel_id=record.parcel_id,
+    //     survey_number=record.survey_number,
+    //     location=record.location,
+    //     area_sqft=record.area_sqft,
+    //     property_type=record.property_type,
+    //     document_type=record.document_type,
+    //     owner=record.owner,
+    //     is_approved=arc4.Bool(True),
+    //     is_for_sale=record.is_for_sale,
+    //     price_microalgos=record.price_microalgos,
+    //     ipfs_cid=record.ipfs_cid,
+    //     document_hash=record.document_hash,
+    //     created_at=record.created_at,
+    //     last_transfer_at=record.last_transfer_at,
+    //     status=arc4.UInt64(1),  # VERIFIED = 1
+    //     verified_by=arc4.Address(Txn.sender),
+    //     verification_timestamp=arc4.UInt64(now),
+    //     rejection_reason=arc4.String(""),
+    //     transfer_count=record.transfer_count,
+    // )
+    concat
+    // smart_contracts/land_contract/contract.py:163
     // self.parcels[parcel_id] = updated_record.copy()
     dig 1
     box_del
     pop
     box_put
-    // smart_contracts/land_contract/contract.py:132
+    // smart_contracts/land_contract/contract.py:133
     // @arc4.abimethod()
-    intc_2 // 1
+    intc_3 // 1
+    return
+
+
+// smart_contracts.land_contract.contract.LandContract.reject_land[routing]() -> void:
+reject_land:
+    // smart_contracts/land_contract/contract.py:165
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/land_contract/contract.py:167
+    // assert Txn.sender == self.admin.value, "Only authorized registrar can reject land"
+    txn Sender
+    intc_1 // 0
+    bytec_1 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // Only authorized registrar can reject land
+    // smart_contracts/land_contract/contract.py:168
+    // assert parcel_id in self.parcels, "Parcel ID does not exist"
+    bytec_0 // "parcels"
+    uncover 2
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Parcel ID does not exist
+    // smart_contracts/land_contract/contract.py:170-171
+    // record = self.parcels[parcel_id].copy()
+    // assert record.status.as_uint64() == 0, "Land registration is not PENDING review"
+    dup
+    pushint 79
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:171
+    // assert record.status.as_uint64() == 0, "Land registration is not PENDING review"
+    btoi
+    !
+    assert // Land registration is not PENDING review
+    // smart_contracts/land_contract/contract.py:173
+    // now = Global.latest_timestamp
+    global LatestTimestamp
+    // smart_contracts/land_contract/contract.py:175
+    // parcel_id=record.parcel_id,
+    dig 1
+    intc 4 // 137
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 2
+    intc 4 // 137
+    uncover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:176
+    // survey_number=record.survey_number,
+    dig 2
+    intc_0 // 2
+    dup
+    box_extract
+    btoi
+    dig 3
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 4
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:177
+    // location=record.location,
+    dig 3
+    pushint 4
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 4
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 5
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:178
+    // area_sqft=record.area_sqft,
+    dig 4
+    pushint 6
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:179
+    // property_type=record.property_type,
+    dig 5
+    pushint 14
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 6
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 7
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:180
+    // document_type=record.document_type,
+    dig 6
+    pushint 16
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 7
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 8
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:181
+    // owner=record.owner,
+    dig 7
+    pushints 18 32
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:185
+    // ipfs_cid=record.ipfs_cid,
+    dig 8
+    pushint 59
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 9
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 10
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:186
+    // document_hash=record.document_hash,
+    dig 9
+    pushint 61
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 10
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 11
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:187
+    // created_at=record.created_at,
+    dig 10
+    pushint 63
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:188
+    // last_transfer_at=record.last_transfer_at,
+    dig 11
+    pushint 71
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:190
+    // verified_by=arc4.Address(Txn.sender),
+    txn Sender
+    // smart_contracts/land_contract/contract.py:191
+    // verification_timestamp=arc4.UInt64(now),
+    uncover 12
+    itob
+    // smart_contracts/land_contract/contract.py:193
+    // transfer_count=record.transfer_count,
+    dig 13
+    intc 5 // 129
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:174-194
+    // updated_record = LandRecord(
+    //     parcel_id=record.parcel_id,
+    //     survey_number=record.survey_number,
+    //     location=record.location,
+    //     area_sqft=record.area_sqft,
+    //     property_type=record.property_type,
+    //     document_type=record.document_type,
+    //     owner=record.owner,
+    //     is_approved=arc4.Bool(False),
+    //     is_for_sale=arc4.Bool(False),
+    //     price_microalgos=arc4.UInt64(0),
+    //     ipfs_cid=record.ipfs_cid,
+    //     document_hash=record.document_hash,
+    //     created_at=record.created_at,
+    //     last_transfer_at=record.last_transfer_at,
+    //     status=arc4.UInt64(2),  # REJECTED = 2
+    //     verified_by=arc4.Address(Txn.sender),
+    //     verification_timestamp=arc4.UInt64(now),
+    //     rejection_reason=arc4.String(rejection_reason),
+    //     transfer_count=record.transfer_count,
+    // )
+    dig 13
+    len
+    intc 4 // 137
+    +
+    dup
+    itob
+    extract 6 2
+    bytec_2 // 0x0089
+    swap
+    concat
+    dig 14
+    len
+    uncover 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    dig 13
+    len
+    uncover 2
+    +
+    swap
+    uncover 12
+    concat
+    dig 1
+    itob
+    extract 6 2
+    concat
+    dig 11
+    len
+    uncover 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    dig 10
+    len
+    uncover 2
+    +
+    swap
+    uncover 9
+    concat
+    bytec 7 // 0x000000000000000000
+    concat
+    dig 1
+    itob
+    extract 6 2
+    concat
+    dig 8
+    len
+    uncover 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    dig 7
+    len
+    uncover 2
+    +
+    swap
+    uncover 6
+    concat
+    uncover 5
+    concat
+    // smart_contracts/land_contract/contract.py:189
+    // status=arc4.UInt64(2),  # REJECTED = 2
+    pushbytes 0x0000000000000002
+    // smart_contracts/land_contract/contract.py:174-194
+    // updated_record = LandRecord(
+    //     parcel_id=record.parcel_id,
+    //     survey_number=record.survey_number,
+    //     location=record.location,
+    //     area_sqft=record.area_sqft,
+    //     property_type=record.property_type,
+    //     document_type=record.document_type,
+    //     owner=record.owner,
+    //     is_approved=arc4.Bool(False),
+    //     is_for_sale=arc4.Bool(False),
+    //     price_microalgos=arc4.UInt64(0),
+    //     ipfs_cid=record.ipfs_cid,
+    //     document_hash=record.document_hash,
+    //     created_at=record.created_at,
+    //     last_transfer_at=record.last_transfer_at,
+    //     status=arc4.UInt64(2),  # REJECTED = 2
+    //     verified_by=arc4.Address(Txn.sender),
+    //     verification_timestamp=arc4.UInt64(now),
+    //     rejection_reason=arc4.String(rejection_reason),
+    //     transfer_count=record.transfer_count,
+    // )
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    uncover 7
+    concat
+    uncover 6
+    concat
+    uncover 5
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    uncover 2
+    concat
+    // smart_contracts/land_contract/contract.py:195
+    // self.parcels[parcel_id] = updated_record.copy()
+    dig 1
+    box_del
+    pop
+    box_put
+    // smart_contracts/land_contract/contract.py:165
+    // @arc4.abimethod()
+    intc_3 // 1
+    return
+
+
+// smart_contracts.land_contract.contract.LandContract.list_for_sale[routing]() -> void:
+list_for_sale:
+    // smart_contracts/land_contract/contract.py:197
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    dup
+    btoi
+    // smart_contracts/land_contract/contract.py:199
+    // assert parcel_id in self.parcels, "Parcel ID does not exist"
+    bytec_0 // "parcels"
+    uncover 3
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Parcel ID does not exist
+    // smart_contracts/land_contract/contract.py:202
+    // arc4.Address(Txn.sender) == record.owner
+    txn Sender
+    dig 1
+    pushints 18 32
+    box_extract // on error: index out of bounds
+    swap
+    dig 1
+    ==
+    // smart_contracts/land_contract/contract.py:201-203
+    // assert (
+    //     arc4.Address(Txn.sender) == record.owner
+    // ), "Only land owner can list land for sale"
+    assert // Only land owner can list land for sale
+    // smart_contracts/land_contract/contract.py:204
+    // assert record.status.as_uint64() == 1, "ERROR: Property listing is allowed only for VERIFIED land records."
+    dig 1
+    pushint 79
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    dup
+    btoi
+    intc_3 // 1
+    ==
+    assert // ERROR: Property listing is allowed only for VERIFIED land records.
+    // smart_contracts/land_contract/contract.py:205
+    // assert price_microalgos > 0, "Price must be greater than zero"
+    uncover 3
+    assert // Price must be greater than zero
+    // smart_contracts/land_contract/contract.py:208
+    // parcel_id=record.parcel_id,
+    dig 2
+    intc 4 // 137
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 3
+    intc 4 // 137
+    uncover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:209
+    // survey_number=record.survey_number,
+    dig 3
+    intc_0 // 2
+    dup
+    box_extract
+    btoi
+    dig 4
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 5
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:210
+    // location=record.location,
+    dig 4
+    pushint 4
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 5
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 6
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:211
+    // area_sqft=record.area_sqft,
+    dig 5
+    pushint 6
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:212
+    // property_type=record.property_type,
+    dig 6
+    pushint 14
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 7
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 8
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:213
+    // document_type=record.document_type,
+    dig 7
+    pushint 16
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 8
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 9
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:215
+    // is_approved=record.is_approved,
+    dig 8
+    pushint 50
+    intc_3 // 1
+    box_extract // on error: index out of bounds
+    intc_1 // 0
+    getbit
+    bytec_3 // 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    // smart_contracts/land_contract/contract.py:218
+    // ipfs_cid=record.ipfs_cid,
+    dig 9
+    pushint 59
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 10
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 11
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:219
+    // document_hash=record.document_hash,
+    dig 10
+    pushint 61
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 11
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 12
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:220
+    // created_at=record.created_at,
+    dig 11
+    pushint 63
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:221
+    // last_transfer_at=record.last_transfer_at,
+    dig 12
+    pushint 71
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:223
+    // verified_by=record.verified_by,
+    dig 13
+    pushints 87 32
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:224
+    // verification_timestamp=record.verification_timestamp,
+    dig 14
+    pushint 119
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:225
+    // rejection_reason=record.rejection_reason,
+    dig 15
+    pushint 127
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 16
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 17
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:226
+    // transfer_count=record.transfer_count,
+    dig 16
+    intc 5 // 129
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:207-227
+    // updated_record = LandRecord(
+    //     parcel_id=record.parcel_id,
+    //     survey_number=record.survey_number,
+    //     location=record.location,
+    //     area_sqft=record.area_sqft,
+    //     property_type=record.property_type,
+    //     document_type=record.document_type,
+    //     owner=record.owner,
+    //     is_approved=record.is_approved,
+    //     is_for_sale=arc4.Bool(True),
+    //     price_microalgos=arc4.UInt64(price_microalgos),
+    //     ipfs_cid=record.ipfs_cid,
+    //     document_hash=record.document_hash,
+    //     created_at=record.created_at,
+    //     last_transfer_at=record.last_transfer_at,
+    //     status=record.status,
+    //     verified_by=record.verified_by,
+    //     verification_timestamp=record.verification_timestamp,
+    //     rejection_reason=record.rejection_reason,
+    //     transfer_count=record.transfer_count,
+    // )
+    dig 14
+    len
+    intc 4 // 137
+    +
+    dup
+    itob
+    extract 6 2
+    bytec_2 // 0x0089
+    swap
+    concat
+    dig 15
+    len
+    uncover 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    dig 14
+    len
+    uncover 2
+    +
+    swap
+    uncover 13
+    concat
+    dig 1
+    itob
+    extract 6 2
+    concat
+    dig 12
+    len
+    uncover 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    dig 11
+    len
+    uncover 2
+    +
+    swap
+    uncover 17
+    concat
+    uncover 10
+    intc_3 // 1
+    dup
+    setbit
+    concat
+    uncover 17
+    concat
+    dig 1
+    itob
+    extract 6 2
+    concat
+    dig 9
+    len
+    uncover 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    dig 8
+    len
+    uncover 2
+    +
+    swap
+    uncover 7
+    concat
+    uncover 6
+    concat
+    uncover 13
+    concat
+    uncover 5
+    concat
+    uncover 4
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    uncover 8
+    concat
+    uncover 7
+    concat
+    uncover 6
+    concat
+    uncover 5
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    // smart_contracts/land_contract/contract.py:228
+    // self.parcels[parcel_id] = updated_record.copy()
+    dig 1
+    box_del
+    pop
+    box_put
+    // smart_contracts/land_contract/contract.py:197
+    // @arc4.abimethod()
+    intc_3 // 1
+    return
+
+
+// smart_contracts.land_contract.contract.LandContract.delist_land[routing]() -> void:
+delist_land:
+    // smart_contracts/land_contract/contract.py:230
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/land_contract/contract.py:232
+    // assert parcel_id in self.parcels, "Parcel ID does not exist"
+    bytec_0 // "parcels"
+    swap
+    concat
+    dupn 2
+    box_len
+    bury 1
+    assert // Parcel ID does not exist
+    // smart_contracts/land_contract/contract.py:235
+    // arc4.Address(Txn.sender) == record.owner or Txn.sender == self.admin.value
+    txn Sender
+    swap
+    pushints 18 32
+    box_extract // on error: index out of bounds
+    dup
+    cover 2
+    ==
+    bnz delist_land_bool_true@3
+    txn Sender
+    intc_1 // 0
+    bytec_1 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    bz delist_land_bool_false@4
+
+delist_land_bool_true@3:
+    intc_3 // 1
+
+delist_land_bool_merge@5:
+    // smart_contracts/land_contract/contract.py:234-236
+    // assert (
+    //     arc4.Address(Txn.sender) == record.owner or Txn.sender == self.admin.value
+    // ), "Only owner or admin can delist land"
+    assert // Only owner or admin can delist land
+    // smart_contracts/land_contract/contract.py:239
+    // parcel_id=record.parcel_id,
+    dig 1
+    dup
+    intc 4 // 137
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 1
+    intc 4 // 137
+    uncover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:240
+    // survey_number=record.survey_number,
+    dig 1
+    intc_0 // 2
+    dup
+    box_extract
+    btoi
+    dig 2
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 3
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:241
+    // location=record.location,
+    dig 2
+    pushint 4
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 3
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 4
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:242
+    // area_sqft=record.area_sqft,
+    dig 3
+    pushint 6
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:243
+    // property_type=record.property_type,
+    dig 4
+    pushint 14
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 5
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 6
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:244
+    // document_type=record.document_type,
+    dig 5
+    pushint 16
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 6
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 7
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:246
+    // is_approved=record.is_approved,
+    dig 6
+    pushint 50
+    intc_3 // 1
+    box_extract // on error: index out of bounds
+    intc_1 // 0
+    getbit
+    bytec_3 // 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    // smart_contracts/land_contract/contract.py:249
+    // ipfs_cid=record.ipfs_cid,
+    dig 7
+    pushint 59
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 8
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 9
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:250
+    // document_hash=record.document_hash,
+    dig 8
+    pushint 61
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 9
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 10
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:251
+    // created_at=record.created_at,
+    dig 9
+    pushint 63
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:252
+    // last_transfer_at=record.last_transfer_at,
+    dig 10
+    pushint 71
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:253
+    // status=record.status,
+    dig 11
+    pushint 79
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:254
+    // verified_by=record.verified_by,
+    dig 12
+    pushints 87 32
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:255
+    // verification_timestamp=record.verification_timestamp,
+    dig 13
+    pushint 119
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:256
+    // rejection_reason=record.rejection_reason,
+    dig 14
+    pushint 127
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 15
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 16
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:257
+    // transfer_count=record.transfer_count,
+    dig 15
+    intc 5 // 129
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:238-258
+    // updated_record = LandRecord(
+    //     parcel_id=record.parcel_id,
+    //     survey_number=record.survey_number,
+    //     location=record.location,
+    //     area_sqft=record.area_sqft,
+    //     property_type=record.property_type,
+    //     document_type=record.document_type,
+    //     owner=record.owner,
+    //     is_approved=record.is_approved,
+    //     is_for_sale=arc4.Bool(False),
+    //     price_microalgos=arc4.UInt64(0),
+    //     ipfs_cid=record.ipfs_cid,
+    //     document_hash=record.document_hash,
+    //     created_at=record.created_at,
+    //     last_transfer_at=record.last_transfer_at,
+    //     status=record.status,
+    //     verified_by=record.verified_by,
+    //     verification_timestamp=record.verification_timestamp,
+    //     rejection_reason=record.rejection_reason,
+    //     transfer_count=record.transfer_count,
+    // )
+    dig 15
+    len
+    intc 4 // 137
+    +
+    dup
+    itob
+    extract 6 2
+    bytec_2 // 0x0089
+    swap
+    concat
+    dig 16
+    len
+    uncover 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    dig 15
+    len
+    uncover 2
+    +
+    swap
+    uncover 14
+    concat
+    dig 1
+    itob
+    extract 6 2
+    concat
+    dig 13
+    len
+    uncover 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    dig 12
+    len
+    uncover 2
+    +
+    swap
+    dig 18
+    concat
+    uncover 11
+    intc_3 // 1
+    intc_1 // 0
+    setbit
+    concat
+    // smart_contracts/land_contract/contract.py:248
+    // price_microalgos=arc4.UInt64(0),
+    bytec 4 // 0x0000000000000000
+    // smart_contracts/land_contract/contract.py:238-258
+    // updated_record = LandRecord(
+    //     parcel_id=record.parcel_id,
+    //     survey_number=record.survey_number,
+    //     location=record.location,
+    //     area_sqft=record.area_sqft,
+    //     property_type=record.property_type,
+    //     document_type=record.document_type,
+    //     owner=record.owner,
+    //     is_approved=record.is_approved,
+    //     is_for_sale=arc4.Bool(False),
+    //     price_microalgos=arc4.UInt64(0),
+    //     ipfs_cid=record.ipfs_cid,
+    //     document_hash=record.document_hash,
+    //     created_at=record.created_at,
+    //     last_transfer_at=record.last_transfer_at,
+    //     status=record.status,
+    //     verified_by=record.verified_by,
+    //     verification_timestamp=record.verification_timestamp,
+    //     rejection_reason=record.rejection_reason,
+    //     transfer_count=record.transfer_count,
+    // )
+    concat
+    dig 1
+    itob
+    extract 6 2
+    concat
+    dig 10
+    len
+    uncover 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    dig 9
+    len
+    uncover 2
+    +
+    swap
+    uncover 8
+    concat
+    uncover 7
+    concat
+    uncover 6
+    concat
+    uncover 5
+    concat
+    uncover 4
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    uncover 8
+    concat
+    uncover 7
+    concat
+    uncover 6
+    concat
+    uncover 5
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    // smart_contracts/land_contract/contract.py:259
+    // self.parcels[parcel_id] = updated_record.copy()
+    dig 1
+    box_del
+    pop
+    box_put
+    // smart_contracts/land_contract/contract.py:230
+    // @arc4.abimethod()
+    intc_3 // 1
     return
 
 delist_land_bool_false@4:
@@ -1169,7 +2342,7 @@ delist_land_bool_false@4:
 
 // smart_contracts.land_contract.contract.LandContract.transfer_ownership[routing]() -> void:
 transfer_ownership:
-    // smart_contracts/land_contract/contract.py:157
+    // smart_contracts/land_contract/contract.py:261
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -1189,59 +2362,74 @@ transfer_ownership:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/land_contract/contract.py:159
+    // smart_contracts/land_contract/contract.py:263
     // assert parcel_id in self.parcels, "Parcel ID does not exist"
-    bytec_1 // "parcels"
+    bytec_0 // "parcels"
     swap
     concat
     dupn 2
     box_len
     bury 1
     assert // Parcel ID does not exist
-    // smart_contracts/land_contract/contract.py:162
+    // smart_contracts/land_contract/contract.py:264-265
+    // record = self.parcels[parcel_id].copy()
+    // assert record.status.as_uint64() == 1, "ERROR: Ownership transfer is allowed only for VERIFIED land records."
+    dup
+    pushint 79
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    dup
+    cover 2
+    // smart_contracts/land_contract/contract.py:265
+    // assert record.status.as_uint64() == 1, "ERROR: Ownership transfer is allowed only for VERIFIED land records."
+    btoi
+    intc_3 // 1
+    ==
+    assert // ERROR: Ownership transfer is allowed only for VERIFIED land records.
+    // smart_contracts/land_contract/contract.py:267
     // arc4.Address(Txn.sender) == record.owner or Txn.sender == self.admin.value
     txn Sender
     swap
-    pushints 16 32
+    pushints 18 32
     box_extract // on error: index out of bounds
     ==
     bnz transfer_ownership_bool_true@3
     txn Sender
     intc_1 // 0
-    bytec_0 // "admin"
+    bytec_1 // "admin"
     app_global_get_ex
     assert // check self.admin exists
     ==
     bz transfer_ownership_bool_false@4
 
 transfer_ownership_bool_true@3:
-    intc_2 // 1
+    intc_3 // 1
 
 transfer_ownership_bool_merge@5:
-    // smart_contracts/land_contract/contract.py:161-163
+    // smart_contracts/land_contract/contract.py:266-268
     // assert (
     //     arc4.Address(Txn.sender) == record.owner or Txn.sender == self.admin.value
     // ), "Only current owner or admin can transfer ownership"
     assert // Only current owner or admin can transfer ownership
-    // smart_contracts/land_contract/contract.py:165
+    // smart_contracts/land_contract/contract.py:270
     // now = Global.latest_timestamp
     global LatestTimestamp
-    // smart_contracts/land_contract/contract.py:167
+    // smart_contracts/land_contract/contract.py:272
     // parcel_id=record.parcel_id,
-    dig 1
+    dig 2
     dup
-    pushint 77
+    intc 4 // 137
     intc_0 // 2
     box_extract
     btoi
     intc_0 // 2
     +
     dig 1
-    pushint 77
+    intc 4 // 137
     uncover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:168
-    // location=record.location,
+    // smart_contracts/land_contract/contract.py:273
+    // survey_number=record.survey_number,
     dig 1
     intc_0 // 2
     dup
@@ -1257,31 +2445,31 @@ transfer_ownership_bool_merge@5:
     dig 3
     cover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:169
-    // area_sqft=record.area_sqft,
+    // smart_contracts/land_contract/contract.py:274
+    // location=record.location,
     dig 2
     pushint 4
-    intc_3 // 8
-    box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:170
-    // property_type=record.property_type,
-    dig 3
-    pushint 12
     intc_0 // 2
     box_extract
     btoi
-    dig 4
+    dig 3
     dig 1
     intc_0 // 2
     box_extract
     btoi
     intc_0 // 2
     +
-    dig 5
+    dig 4
     cover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:171
-    // document_type=record.document_type,
+    // smart_contracts/land_contract/contract.py:275
+    // area_sqft=record.area_sqft,
+    dig 3
+    pushint 6
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:276
+    // property_type=record.property_type,
     dig 4
     pushint 14
     intc_0 // 2
@@ -1297,37 +2485,37 @@ transfer_ownership_bool_merge@5:
     dig 6
     cover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:173
-    // is_approved=record.is_approved,
+    // smart_contracts/land_contract/contract.py:277
+    // document_type=record.document_type,
     dig 5
-    pushint 48
-    intc_2 // 1
-    box_extract // on error: index out of bounds
-    intc_1 // 0
-    getbit
-    bytec_2 // 0x00
-    intc_1 // 0
-    uncover 2
-    setbit
-    // smart_contracts/land_contract/contract.py:176
-    // ipfs_cid=record.ipfs_cid,
-    dig 6
-    pushint 57
+    pushint 16
     intc_0 // 2
     box_extract
     btoi
-    dig 7
+    dig 6
     dig 1
     intc_0 // 2
     box_extract
     btoi
     intc_0 // 2
     +
-    dig 8
+    dig 7
     cover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:177
-    // document_hash=record.document_hash,
+    // smart_contracts/land_contract/contract.py:279
+    // is_approved=record.is_approved,
+    dig 6
+    pushint 50
+    intc_3 // 1
+    box_extract // on error: index out of bounds
+    intc_1 // 0
+    getbit
+    bytec_3 // 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    // smart_contracts/land_contract/contract.py:282
+    // ipfs_cid=record.ipfs_cid,
     dig 7
     pushint 59
     intc_0 // 2
@@ -1343,19 +2531,75 @@ transfer_ownership_bool_merge@5:
     dig 9
     cover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:178
-    // created_at=record.created_at,
+    // smart_contracts/land_contract/contract.py:283
+    // document_hash=record.document_hash,
     dig 8
     pushint 61
-    intc_3 // 8
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 9
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 10
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:284
+    // created_at=record.created_at,
+    dig 9
+    pushint 63
+    intc_2 // 8
     box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:179
+    // smart_contracts/land_contract/contract.py:285
     // last_transfer_at=arc4.UInt64(now),
-    uncover 10
+    uncover 11
     itob
-    // smart_contracts/land_contract/contract.py:166-180
+    // smart_contracts/land_contract/contract.py:287
+    // verified_by=record.verified_by,
+    dig 11
+    pushints 87 32
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:288
+    // verification_timestamp=record.verification_timestamp,
+    dig 12
+    pushint 119
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:289
+    // rejection_reason=record.rejection_reason,
+    dig 13
+    pushint 127
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 14
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 15
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:290
+    // transfer_count=arc4.UInt64(record.transfer_count.as_uint64() + 1),
+    dig 14
+    intc 5 // 129
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    btoi
+    intc_3 // 1
+    +
+    itob
+    // smart_contracts/land_contract/contract.py:271-291
     // updated_record = LandRecord(
     //     parcel_id=record.parcel_id,
+    //     survey_number=record.survey_number,
     //     location=record.location,
     //     area_sqft=record.area_sqft,
     //     property_type=record.property_type,
@@ -1368,29 +2612,44 @@ transfer_ownership_bool_merge@5:
     //     document_hash=record.document_hash,
     //     created_at=record.created_at,
     //     last_transfer_at=arc4.UInt64(now),
+    //     status=record.status,
+    //     verified_by=record.verified_by,
+    //     verification_timestamp=record.verification_timestamp,
+    //     rejection_reason=record.rejection_reason,
+    //     transfer_count=arc4.UInt64(record.transfer_count.as_uint64() + 1),
     // )
-    dig 9
+    dig 14
     len
-    pushint 77
+    intc 4 // 137
     +
     dup
     itob
     extract 6 2
-    bytec_3 // 0x004d
+    bytec_2 // 0x0089
     swap
     concat
-    dig 10
+    dig 15
+    len
+    uncover 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    dig 14
     len
     uncover 2
     +
     swap
-    uncover 9
+    uncover 13
     concat
     dig 1
     itob
     extract 6 2
     concat
-    dig 8
+    dig 12
     len
     uncover 2
     +
@@ -1400,24 +2659,25 @@ transfer_ownership_bool_merge@5:
     uncover 2
     swap
     concat
-    dig 7
+    dig 11
     len
     uncover 2
     +
     swap
-    dig 13
+    dig 19
     concat
-    uncover 6
-    intc_2 // 1
+    uncover 10
+    intc_3 // 1
     intc_1 // 0
     setbit
     concat
-    // smart_contracts/land_contract/contract.py:175
+    // smart_contracts/land_contract/contract.py:281
     // price_microalgos=arc4.UInt64(0),
-    bytec 5 // 0x0000000000000000
-    // smart_contracts/land_contract/contract.py:166-180
+    bytec 4 // 0x0000000000000000
+    // smart_contracts/land_contract/contract.py:271-291
     // updated_record = LandRecord(
     //     parcel_id=record.parcel_id,
+    //     survey_number=record.survey_number,
     //     location=record.location,
     //     area_sqft=record.area_sqft,
     //     property_type=record.property_type,
@@ -1430,22 +2690,51 @@ transfer_ownership_bool_merge@5:
     //     document_hash=record.document_hash,
     //     created_at=record.created_at,
     //     last_transfer_at=arc4.UInt64(now),
+    //     status=record.status,
+    //     verified_by=record.verified_by,
+    //     verification_timestamp=record.verification_timestamp,
+    //     rejection_reason=record.rejection_reason,
+    //     transfer_count=arc4.UInt64(record.transfer_count.as_uint64() + 1),
     // )
     concat
     dig 1
     itob
     extract 6 2
     concat
-    dig 5
+    dig 9
     len
     uncover 2
     +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    dig 8
+    len
+    uncover 2
+    +
+    swap
+    uncover 7
+    concat
+    uncover 6
+    concat
+    dig 14
+    concat
+    uncover 5
+    concat
+    uncover 4
+    concat
+    swap
     itob
     extract 6 2
     concat
-    uncover 2
-    concat
     swap
+    concat
+    uncover 8
+    concat
+    uncover 7
     concat
     uncover 6
     concat
@@ -1459,15 +2748,15 @@ transfer_ownership_bool_merge@5:
     concat
     swap
     concat
-    // smart_contracts/land_contract/contract.py:181
+    // smart_contracts/land_contract/contract.py:292
     // self.parcels[parcel_id] = updated_record.copy()
     dig 1
     box_del
     pop
     box_put
-    // smart_contracts/land_contract/contract.py:157
+    // smart_contracts/land_contract/contract.py:261
     // @arc4.abimethod()
-    intc_2 // 1
+    intc_3 // 1
     return
 
 transfer_ownership_bool_false@4:
@@ -1477,7 +2766,7 @@ transfer_ownership_bool_false@4:
 
 // smart_contracts.land_contract.contract.LandContract.buy_land[routing]() -> void:
 buy_land:
-    // smart_contracts/land_contract/contract.py:183
+    // smart_contracts/land_contract/contract.py:294
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -1491,113 +2780,118 @@ buy_land:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txn GroupIndex
-    intc_2 // 1
+    intc_3 // 1
     -
     dup
     gtxns TypeEnum
-    intc_2 // pay
+    intc_3 // pay
     ==
     assert // transaction type is pay
-    // smart_contracts/land_contract/contract.py:185
+    // smart_contracts/land_contract/contract.py:296
     // assert parcel_id in self.parcels, "Parcel ID does not exist"
-    bytec_1 // "parcels"
+    bytec_0 // "parcels"
     uncover 2
     concat
     dup
     box_len
     bury 1
     assert // Parcel ID does not exist
-    // smart_contracts/land_contract/contract.py:186-187
+    // smart_contracts/land_contract/contract.py:297-298
     // record = self.parcels[parcel_id].copy()
-    // assert bool(record.is_for_sale), "Parcel is not for sale"
+    // assert record.status.as_uint64() == 1, "ERROR: Ownership transfer is allowed only for VERIFIED land records."
     dup
-    pushint 48
-    intc_2 // 1
+    pushint 79
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:298
+    // assert record.status.as_uint64() == 1, "ERROR: Ownership transfer is allowed only for VERIFIED land records."
+    dup
+    btoi
+    intc_3 // 1
+    ==
+    assert // ERROR: Ownership transfer is allowed only for VERIFIED land records.
+    // smart_contracts/land_contract/contract.py:299
+    // assert bool(record.is_for_sale), "Parcel is not for sale"
+    dig 1
+    pushint 50
+    intc_3 // 1
     box_extract // on error: index out of bounds
     dup
-    intc_2 // 1
+    intc_3 // 1
     getbit
-    // smart_contracts/land_contract/contract.py:187
-    // assert bool(record.is_for_sale), "Parcel is not for sale"
-    bytec_2 // 0x00
+    bytec_3 // 0x00
     intc_1 // 0
     uncover 2
     setbit
-    bytec_2 // 0x00
+    bytec_3 // 0x00
     !=
     assert // Parcel is not for sale
-    // smart_contracts/land_contract/contract.py:189
+    // smart_contracts/land_contract/contract.py:301
     // price = record.price_microalgos.as_uint64()
-    dig 1
-    pushint 49
-    intc_3 // 8
+    dig 2
+    pushint 51
+    intc_2 // 8
     box_extract // on error: index out of bounds
     btoi
-    // smart_contracts/land_contract/contract.py:191
+    // smart_contracts/land_contract/contract.py:303
     // assert pay_txn.sender == Txn.sender, "Payment sender must match caller"
-    dig 3
+    dig 4
     gtxns Sender
     txn Sender
     ==
     assert // Payment sender must match caller
-    // smart_contracts/land_contract/contract.py:192
+    // smart_contracts/land_contract/contract.py:304
     // assert arc4.Address(pay_txn.receiver) == record.owner, "Payment receiver must be land owner"
-    dig 3
+    dig 4
     gtxns Receiver
-    dig 3
-    pushints 16 32
+    dig 4
+    pushints 18 32
     box_extract // on error: index out of bounds
     ==
     assert // Payment receiver must be land owner
-    // smart_contracts/land_contract/contract.py:193
+    // smart_contracts/land_contract/contract.py:305
     // assert pay_txn.amount >= price, "Payment amount is insufficient"
-    uncover 3
+    uncover 4
     gtxns Amount
     <=
     assert // Payment amount is insufficient
-    // smart_contracts/land_contract/contract.py:195
+    // smart_contracts/land_contract/contract.py:307
     // now = Global.latest_timestamp
     global LatestTimestamp
-    // smart_contracts/land_contract/contract.py:197
+    // smart_contracts/land_contract/contract.py:309
     // parcel_id=record.parcel_id,
-    dig 2
-    pushint 77
+    dig 3
+    intc 4 // 137
     intc_0 // 2
     box_extract
     btoi
     intc_0 // 2
     +
-    dig 3
-    pushint 77
+    dig 4
+    intc 4 // 137
     uncover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:198
-    // location=record.location,
-    dig 3
+    // smart_contracts/land_contract/contract.py:310
+    // survey_number=record.survey_number,
+    dig 4
     intc_0 // 2
     dup
     box_extract
     btoi
-    dig 4
+    dig 5
     dig 1
     intc_0 // 2
     box_extract
     btoi
     intc_0 // 2
     +
-    dig 5
+    dig 6
     cover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:199
-    // area_sqft=record.area_sqft,
-    dig 4
-    pushint 4
-    intc_3 // 8
-    box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:200
-    // property_type=record.property_type,
+    // smart_contracts/land_contract/contract.py:311
+    // location=record.location,
     dig 5
-    pushint 12
+    pushint 4
     intc_0 // 2
     box_extract
     btoi
@@ -1611,39 +2905,33 @@ buy_land:
     dig 7
     cover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:201
-    // document_type=record.document_type,
+    // smart_contracts/land_contract/contract.py:312
+    // area_sqft=record.area_sqft,
     dig 6
+    pushint 6
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:313
+    // property_type=record.property_type,
+    dig 7
     pushint 14
     intc_0 // 2
     box_extract
     btoi
-    dig 7
+    dig 8
     dig 1
     intc_0 // 2
     box_extract
     btoi
     intc_0 // 2
     +
-    dig 8
+    dig 9
     cover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:202
-    // owner=arc4.Address(Txn.sender),
-    txn Sender
-    // smart_contracts/land_contract/contract.py:203
-    // is_approved=record.is_approved,
-    uncover 7
-    intc_1 // 0
-    getbit
-    bytec_2 // 0x00
-    intc_1 // 0
-    uncover 2
-    setbit
-    // smart_contracts/land_contract/contract.py:206
-    // ipfs_cid=record.ipfs_cid,
+    // smart_contracts/land_contract/contract.py:314
+    // document_type=record.document_type,
     dig 8
-    pushint 57
+    pushint 16
     intc_0 // 2
     box_extract
     btoi
@@ -1657,36 +2945,104 @@ buy_land:
     dig 10
     cover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:207
-    // document_hash=record.document_hash,
-    dig 9
+    // smart_contracts/land_contract/contract.py:315
+    // owner=arc4.Address(Txn.sender),
+    txn Sender
+    // smart_contracts/land_contract/contract.py:316
+    // is_approved=record.is_approved,
+    uncover 8
+    intc_1 // 0
+    getbit
+    bytec_3 // 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    // smart_contracts/land_contract/contract.py:319
+    // ipfs_cid=record.ipfs_cid,
+    dig 10
     pushint 59
     intc_0 // 2
     box_extract
     btoi
-    dig 10
+    dig 11
     dig 1
     intc_0 // 2
     box_extract
     btoi
     intc_0 // 2
     +
-    dig 11
+    dig 12
     cover 2
     box_extract
-    // smart_contracts/land_contract/contract.py:208
-    // created_at=record.created_at,
-    dig 10
+    // smart_contracts/land_contract/contract.py:320
+    // document_hash=record.document_hash,
+    dig 11
     pushint 61
-    intc_3 // 8
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 12
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 13
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:321
+    // created_at=record.created_at,
+    dig 12
+    pushint 63
+    intc_2 // 8
     box_extract // on error: index out of bounds
-    // smart_contracts/land_contract/contract.py:209
+    // smart_contracts/land_contract/contract.py:322
     // last_transfer_at=arc4.UInt64(now),
-    uncover 10
+    uncover 11
     itob
-    // smart_contracts/land_contract/contract.py:196-210
+    // smart_contracts/land_contract/contract.py:324
+    // verified_by=record.verified_by,
+    dig 13
+    pushints 87 32
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:325
+    // verification_timestamp=record.verification_timestamp,
+    dig 14
+    pushint 119
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    // smart_contracts/land_contract/contract.py:326
+    // rejection_reason=record.rejection_reason,
+    dig 15
+    pushint 127
+    intc_0 // 2
+    box_extract
+    btoi
+    dig 16
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    intc_0 // 2
+    +
+    dig 17
+    cover 2
+    box_extract
+    // smart_contracts/land_contract/contract.py:327
+    // transfer_count=arc4.UInt64(record.transfer_count.as_uint64() + 1),
+    dig 16
+    intc 5 // 129
+    intc_2 // 8
+    box_extract // on error: index out of bounds
+    btoi
+    intc_3 // 1
+    +
+    itob
+    // smart_contracts/land_contract/contract.py:308-328
     // updated_record = LandRecord(
     //     parcel_id=record.parcel_id,
+    //     survey_number=record.survey_number,
     //     location=record.location,
     //     area_sqft=record.area_sqft,
     //     property_type=record.property_type,
@@ -1699,23 +3055,90 @@ buy_land:
     //     document_hash=record.document_hash,
     //     created_at=record.created_at,
     //     last_transfer_at=arc4.UInt64(now),
+    //     status=record.status,
+    //     verified_by=record.verified_by,
+    //     verification_timestamp=record.verification_timestamp,
+    //     rejection_reason=record.rejection_reason,
+    //     transfer_count=arc4.UInt64(record.transfer_count.as_uint64() + 1),
     // )
-    dig 10
+    dig 15
     len
-    pushint 77
+    intc 4 // 137
     +
     dup
     itob
     extract 6 2
-    bytec_3 // 0x004d
+    bytec_2 // 0x0089
     swap
     concat
-    dig 11
+    dig 16
+    len
+    uncover 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    dig 15
     len
     uncover 2
     +
     swap
+    uncover 14
+    concat
+    dig 1
+    itob
+    extract 6 2
+    concat
+    dig 13
+    len
+    uncover 2
+    +
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    dig 12
+    len
+    uncover 2
+    +
+    swap
+    uncover 11
+    concat
     uncover 10
+    intc_3 // 1
+    intc_1 // 0
+    setbit
+    concat
+    // smart_contracts/land_contract/contract.py:318
+    // price_microalgos=arc4.UInt64(0),
+    bytec 4 // 0x0000000000000000
+    // smart_contracts/land_contract/contract.py:308-328
+    // updated_record = LandRecord(
+    //     parcel_id=record.parcel_id,
+    //     survey_number=record.survey_number,
+    //     location=record.location,
+    //     area_sqft=record.area_sqft,
+    //     property_type=record.property_type,
+    //     document_type=record.document_type,
+    //     owner=arc4.Address(Txn.sender),
+    //     is_approved=record.is_approved,
+    //     is_for_sale=arc4.Bool(False),
+    //     price_microalgos=arc4.UInt64(0),
+    //     ipfs_cid=record.ipfs_cid,
+    //     document_hash=record.document_hash,
+    //     created_at=record.created_at,
+    //     last_transfer_at=arc4.UInt64(now),
+    //     status=record.status,
+    //     verified_by=record.verified_by,
+    //     verification_timestamp=record.verification_timestamp,
+    //     rejection_reason=record.rejection_reason,
+    //     transfer_count=arc4.UInt64(record.transfer_count.as_uint64() + 1),
+    // )
     concat
     dig 1
     itob
@@ -1739,44 +3162,22 @@ buy_land:
     uncover 7
     concat
     uncover 6
-    intc_2 // 1
-    intc_1 // 0
-    setbit
     concat
-    // smart_contracts/land_contract/contract.py:205
-    // price_microalgos=arc4.UInt64(0),
-    bytec 5 // 0x0000000000000000
-    // smart_contracts/land_contract/contract.py:196-210
-    // updated_record = LandRecord(
-    //     parcel_id=record.parcel_id,
-    //     location=record.location,
-    //     area_sqft=record.area_sqft,
-    //     property_type=record.property_type,
-    //     document_type=record.document_type,
-    //     owner=arc4.Address(Txn.sender),
-    //     is_approved=record.is_approved,
-    //     is_for_sale=arc4.Bool(False),
-    //     price_microalgos=arc4.UInt64(0),
-    //     ipfs_cid=record.ipfs_cid,
-    //     document_hash=record.document_hash,
-    //     created_at=record.created_at,
-    //     last_transfer_at=arc4.UInt64(now),
-    // )
+    uncover 13
     concat
-    dig 1
-    itob
-    extract 6 2
+    uncover 5
     concat
-    dig 5
-    len
-    uncover 2
-    +
-    itob
-    extract 6 2
-    concat
-    uncover 2
+    uncover 4
     concat
     swap
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    uncover 8
+    concat
+    uncover 7
     concat
     uncover 6
     concat
@@ -1790,21 +3191,21 @@ buy_land:
     concat
     swap
     concat
-    // smart_contracts/land_contract/contract.py:211
+    // smart_contracts/land_contract/contract.py:329
     // self.parcels[parcel_id] = updated_record.copy()
     dig 1
     box_del
     pop
     box_put
-    // smart_contracts/land_contract/contract.py:183
+    // smart_contracts/land_contract/contract.py:294
     // @arc4.abimethod()
-    intc_2 // 1
+    intc_3 // 1
     return
 
 
 // smart_contracts.land_contract.contract.LandContract.get_land[routing]() -> void:
 get_land:
-    // smart_contracts/land_contract/contract.py:213
+    // smart_contracts/land_contract/contract.py:331
     // @arc4.abimethod(readonly=True)
     txna ApplicationArgs 1
     dup
@@ -1817,32 +3218,32 @@ get_land:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/land_contract/contract.py:215
+    // smart_contracts/land_contract/contract.py:333
     // assert parcel_id in self.parcels, "Parcel ID does not exist"
-    bytec_1 // "parcels"
+    bytec_0 // "parcels"
     swap
     concat
     dup
     box_len
     bury 1
     assert // Parcel ID does not exist
-    // smart_contracts/land_contract/contract.py:216
+    // smart_contracts/land_contract/contract.py:334
     // return self.parcels[parcel_id].copy()
     box_get
     pop
-    // smart_contracts/land_contract/contract.py:213
+    // smart_contracts/land_contract/contract.py:331
     // @arc4.abimethod(readonly=True)
-    bytec 4 // 0x151f7c75
+    bytec 5 // 0x151f7c75
     swap
     concat
     log
-    intc_2 // 1
+    intc_3 // 1
     return
 
 
 // smart_contracts.land_contract.contract.LandContract.is_land_registered[routing]() -> void:
 is_land_registered:
-    // smart_contracts/land_contract/contract.py:218
+    // smart_contracts/land_contract/contract.py:336
     // @arc4.abimethod(readonly=True)
     txna ApplicationArgs 1
     dup
@@ -1855,30 +3256,30 @@ is_land_registered:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/land_contract/contract.py:220
+    // smart_contracts/land_contract/contract.py:338
     // return parcel_id in self.parcels
-    bytec_1 // "parcels"
+    bytec_0 // "parcels"
     swap
     concat
     box_len
     bury 1
-    // smart_contracts/land_contract/contract.py:218
+    // smart_contracts/land_contract/contract.py:336
     // @arc4.abimethod(readonly=True)
-    bytec_2 // 0x00
+    bytec_3 // 0x00
     intc_1 // 0
     uncover 2
     setbit
-    bytec 4 // 0x151f7c75
+    bytec 5 // 0x151f7c75
     swap
     concat
     log
-    intc_2 // 1
+    intc_3 // 1
     return
 
 
 // smart_contracts.land_contract.contract.LandContract.delete_land[routing]() -> void:
 delete_land:
-    // smart_contracts/land_contract/contract.py:222
+    // smart_contracts/land_contract/contract.py:340
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -1891,48 +3292,48 @@ delete_land:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/land_contract/contract.py:224
+    // smart_contracts/land_contract/contract.py:342
     // assert parcel_id in self.parcels, "Parcel ID does not exist"
-    bytec_1 // "parcels"
+    bytec_0 // "parcels"
     swap
     concat
     dupn 2
     box_len
     bury 1
     assert // Parcel ID does not exist
-    // smart_contracts/land_contract/contract.py:227
+    // smart_contracts/land_contract/contract.py:345
     // arc4.Address(Txn.sender) == record.owner or Txn.sender == self.admin.value
     txn Sender
     swap
-    pushints 16 32
+    pushints 18 32
     box_extract // on error: index out of bounds
     ==
     bnz delete_land_bool_true@3
     txn Sender
     intc_1 // 0
-    bytec_0 // "admin"
+    bytec_1 // "admin"
     app_global_get_ex
     assert // check self.admin exists
     ==
     bz delete_land_bool_false@4
 
 delete_land_bool_true@3:
-    intc_2 // 1
+    intc_3 // 1
 
 delete_land_bool_merge@5:
-    // smart_contracts/land_contract/contract.py:226-228
+    // smart_contracts/land_contract/contract.py:344-346
     // assert (
     //     arc4.Address(Txn.sender) == record.owner or Txn.sender == self.admin.value
     // ), "Only land owner or admin can delete land record"
     assert // Only land owner or admin can delete land record
-    // smart_contracts/land_contract/contract.py:229
+    // smart_contracts/land_contract/contract.py:347
     // del self.parcels[parcel_id]
     dup
     box_del
     pop
-    // smart_contracts/land_contract/contract.py:222
+    // smart_contracts/land_contract/contract.py:340
     // @arc4.abimethod()
-    intc_2 // 1
+    intc_3 // 1
     return
 
 delete_land_bool_false@4:

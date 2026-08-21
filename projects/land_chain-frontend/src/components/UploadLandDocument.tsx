@@ -25,6 +25,7 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
 
   // Form State
   const [propertyId, setPropertyId] = useState('LAND-001')
+  const [surveyNumber, setSurveyNumber] = useState('SURVEY-123/4A')
   const [ownerAddress, setOwnerAddress] = useState(connectedAddress || activeAddress || 'XC7L7DOGVARDIIZWIWPWC7KINFRJZHMPNQZQGEMUFU5XLJXYJKNQPY3UM4')
   const [location, setLocation] = useState('Vijayawada, Plot 42')
   const [areaSqft, setAreaSqft] = useState('3500')
@@ -130,6 +131,7 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
 
       onRegisterLand({
         parcelId: propertyId.trim().toUpperCase(),
+        surveyNumber: surveyNumber.trim().toUpperCase(),
         location: location.trim(),
         areaSqft: Number(areaSqft),
         propertyType,
@@ -138,11 +140,12 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
         ipfsCid: cid,
         documentHash: docHash,
         transactionId: generatedTxId,
+        status: 'PENDING',
       })
 
       setResultTxId(generatedTxId)
       setStep('SUCCESS')
-      setStatusMessage('Land Document successfully registered on IPFS & Algorand Blockchain!')
+      setStatusMessage('Land Document submitted! Status: PENDING VERIFICATION (Awaiting Government Registrar Approval).')
     } catch (err: any) {
       console.error('Blockchain Registration Error:', err)
       setStep('BLOCKCHAIN_FAILED')
@@ -199,7 +202,7 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
             )}
 
             <form onSubmit={handleUploadAndRegister} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="text-xs font-semibold text-slate-300 block mb-1 flex items-center gap-1.5">
                     <Hash className="w-3.5 h-3.5 text-emerald-400" /> Property ID (Parcel PIN)
@@ -207,9 +210,23 @@ export const UploadLandDocument: React.FC<UploadLandDocumentProps> = ({
                   <input
                     type="text"
                     required
-                    placeholder="e.g. LAND-001 or PRCL-2026-9901"
+                    placeholder="e.g. LAND-001 or PRCL-9901"
                     value={propertyId}
                     onChange={(e) => setPropertyId(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs text-white placeholder-slate-500 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1 flex items-center gap-1.5">
+                    <FileCheck className="w-3.5 h-3.5 text-amber-400" /> Survey Number
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. SURVEY-123/4A"
+                    value={surveyNumber}
+                    onChange={(e) => setSurveyNumber(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs text-white placeholder-slate-500 font-mono"
                   />
                 </div>

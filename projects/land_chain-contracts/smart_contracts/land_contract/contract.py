@@ -14,6 +14,7 @@ from algopy import (
 
 class LandRecord(arc4.Struct):
     parcel_id: arc4.String
+    survey_number: arc4.String
     location: arc4.String
     area_sqft: arc4.UInt64
     property_type: arc4.String
@@ -26,6 +27,11 @@ class LandRecord(arc4.Struct):
     document_hash: arc4.String
     created_at: arc4.UInt64
     last_transfer_at: arc4.UInt64
+    status: arc4.UInt64  # 0 = PENDING, 1 = VERIFIED, 2 = REJECTED
+    verified_by: arc4.Address
+    verification_timestamp: arc4.UInt64
+    rejection_reason: arc4.String
+    transfer_count: arc4.UInt64
 
 
 class LandContract(ARC4Contract):
@@ -47,6 +53,45 @@ class LandContract(ARC4Contract):
         self.admin.value = new_admin
 
     @arc4.abimethod()
+    def submit_land(
+        self,
+        parcel_id: String,
+        survey_number: String,
+        location: String,
+        area_sqft: UInt64,
+        property_type: String,
+        document_type: String,
+        owner: Account,
+        ipfs_cid: String,
+        document_hash: String,
+    ) -> None:
+        assert parcel_id not in self.parcels, "Parcel ID already registered"
+
+        now = Global.latest_timestamp
+        record = LandRecord(
+            parcel_id=arc4.String(parcel_id),
+            survey_number=arc4.String(survey_number),
+            location=arc4.String(location),
+            area_sqft=arc4.UInt64(area_sqft),
+            property_type=arc4.String(property_type),
+            document_type=arc4.String(document_type),
+            owner=arc4.Address(owner),
+            is_approved=arc4.Bool(False),
+            is_for_sale=arc4.Bool(False),
+            price_microalgos=arc4.UInt64(0),
+            ipfs_cid=arc4.String(ipfs_cid),
+            document_hash=arc4.String(document_hash),
+            created_at=arc4.UInt64(now),
+            last_transfer_at=arc4.UInt64(now),
+            status=arc4.UInt64(0),  # PENDING = 0
+            verified_by=arc4.Address(owner),  # placeholder until verified
+            verification_timestamp=arc4.UInt64(0),
+            rejection_reason=arc4.String(""),
+            transfer_count=arc4.UInt64(0),
+        )
+        self.parcels[parcel_id] = record.copy()
+
+    @arc4.abimethod()
     def register_land(
         self,
         parcel_id: String,
@@ -58,12 +103,13 @@ class LandContract(ARC4Contract):
         ipfs_cid: String,
         document_hash: String,
     ) -> None:
-        assert Txn.sender == self.admin.value, "Only admin can register land"
+        # Legacy/Admin direct land registration compatibility method
         assert parcel_id not in self.parcels, "Parcel ID already registered"
 
         now = Global.latest_timestamp
         record = LandRecord(
             parcel_id=arc4.String(parcel_id),
+            survey_number=arc4.String(String("SURVEY-") + parcel_id),
             location=arc4.String(location),
             area_sqft=arc4.UInt64(area_sqft),
             property_type=arc4.String(property_type),
@@ -76,17 +122,26 @@ class LandContract(ARC4Contract):
             document_hash=arc4.String(document_hash),
             created_at=arc4.UInt64(now),
             last_transfer_at=arc4.UInt64(now),
+            status=arc4.UInt64(1),  # VERIFIED = 1
+            verified_by=arc4.Address(self.admin.value),
+            verification_timestamp=arc4.UInt64(now),
+            rejection_reason=arc4.String(""),
+            transfer_count=arc4.UInt64(0),
         )
         self.parcels[parcel_id] = record.copy()
 
     @arc4.abimethod()
     def approve_land(self, parcel_id: String) -> None:
-        assert Txn.sender == self.admin.value, "Only admin can approve land"
+        assert Txn.sender == self.admin.value, "Only authorized registrar can approve land"
         assert parcel_id in self.parcels, "Parcel ID does not exist"
 
         record = self.parcels[parcel_id].copy()
+        assert record.status.as_uint64() == 0, "Land registration is not PENDING approval"
+
+        now = Global.latest_timestamp
         updated_record = LandRecord(
             parcel_id=record.parcel_id,
+            survey_number=record.survey_number,
             location=record.location,
             area_sqft=record.area_sqft,
             property_type=record.property_type,
@@ -99,6 +154,43 @@ class LandContract(ARC4Contract):
             document_hash=record.document_hash,
             created_at=record.created_at,
             last_transfer_at=record.last_transfer_at,
+            status=arc4.UInt64(1),  # VERIFIED = 1
+            verified_by=arc4.Address(Txn.sender),
+            verification_timestamp=arc4.UInt64(now),
+            rejection_reason=arc4.String(""),
+            transfer_count=record.transfer_count,
+        )
+        self.parcels[parcel_id] = updated_record.copy()
+
+    @arc4.abimethod()
+    def reject_land(self, parcel_id: String, rejection_reason: String) -> None:
+        assert Txn.sender == self.admin.value, "Only authorized registrar can reject land"
+        assert parcel_id in self.parcels, "Parcel ID does not exist"
+
+        record = self.parcels[parcel_id].copy()
+        assert record.status.as_uint64() == 0, "Land registration is not PENDING review"
+
+        now = Global.latest_timestamp
+        updated_record = LandRecord(
+            parcel_id=record.parcel_id,
+            survey_number=record.survey_number,
+            location=record.location,
+            area_sqft=record.area_sqft,
+            property_type=record.property_type,
+            document_type=record.document_type,
+            owner=record.owner,
+            is_approved=arc4.Bool(False),
+            is_for_sale=arc4.Bool(False),
+            price_microalgos=arc4.UInt64(0),
+            ipfs_cid=record.ipfs_cid,
+            document_hash=record.document_hash,
+            created_at=record.created_at,
+            last_transfer_at=record.last_transfer_at,
+            status=arc4.UInt64(2),  # REJECTED = 2
+            verified_by=arc4.Address(Txn.sender),
+            verification_timestamp=arc4.UInt64(now),
+            rejection_reason=arc4.String(rejection_reason),
+            transfer_count=record.transfer_count,
         )
         self.parcels[parcel_id] = updated_record.copy()
 
@@ -109,11 +201,12 @@ class LandContract(ARC4Contract):
         assert (
             arc4.Address(Txn.sender) == record.owner
         ), "Only land owner can list land for sale"
-        assert bool(record.is_approved), "Land must be government approved before listing"
+        assert record.status.as_uint64() == 1, "ERROR: Property listing is allowed only for VERIFIED land records."
         assert price_microalgos > 0, "Price must be greater than zero"
 
         updated_record = LandRecord(
             parcel_id=record.parcel_id,
+            survey_number=record.survey_number,
             location=record.location,
             area_sqft=record.area_sqft,
             property_type=record.property_type,
@@ -126,6 +219,11 @@ class LandContract(ARC4Contract):
             document_hash=record.document_hash,
             created_at=record.created_at,
             last_transfer_at=record.last_transfer_at,
+            status=record.status,
+            verified_by=record.verified_by,
+            verification_timestamp=record.verification_timestamp,
+            rejection_reason=record.rejection_reason,
+            transfer_count=record.transfer_count,
         )
         self.parcels[parcel_id] = updated_record.copy()
 
@@ -139,6 +237,7 @@ class LandContract(ARC4Contract):
 
         updated_record = LandRecord(
             parcel_id=record.parcel_id,
+            survey_number=record.survey_number,
             location=record.location,
             area_sqft=record.area_sqft,
             property_type=record.property_type,
@@ -151,6 +250,11 @@ class LandContract(ARC4Contract):
             document_hash=record.document_hash,
             created_at=record.created_at,
             last_transfer_at=record.last_transfer_at,
+            status=record.status,
+            verified_by=record.verified_by,
+            verification_timestamp=record.verification_timestamp,
+            rejection_reason=record.rejection_reason,
+            transfer_count=record.transfer_count,
         )
         self.parcels[parcel_id] = updated_record.copy()
 
@@ -158,6 +262,7 @@ class LandContract(ARC4Contract):
     def transfer_ownership(self, parcel_id: String, new_owner: Account) -> None:
         assert parcel_id in self.parcels, "Parcel ID does not exist"
         record = self.parcels[parcel_id].copy()
+        assert record.status.as_uint64() == 1, "ERROR: Ownership transfer is allowed only for VERIFIED land records."
         assert (
             arc4.Address(Txn.sender) == record.owner or Txn.sender == self.admin.value
         ), "Only current owner or admin can transfer ownership"
@@ -165,6 +270,7 @@ class LandContract(ARC4Contract):
         now = Global.latest_timestamp
         updated_record = LandRecord(
             parcel_id=record.parcel_id,
+            survey_number=record.survey_number,
             location=record.location,
             area_sqft=record.area_sqft,
             property_type=record.property_type,
@@ -177,6 +283,11 @@ class LandContract(ARC4Contract):
             document_hash=record.document_hash,
             created_at=record.created_at,
             last_transfer_at=arc4.UInt64(now),
+            status=record.status,
+            verified_by=record.verified_by,
+            verification_timestamp=record.verification_timestamp,
+            rejection_reason=record.rejection_reason,
+            transfer_count=arc4.UInt64(record.transfer_count.as_uint64() + 1),
         )
         self.parcels[parcel_id] = updated_record.copy()
 
@@ -184,6 +295,7 @@ class LandContract(ARC4Contract):
     def buy_land(self, parcel_id: String, pay_txn: gtxn.PaymentTransaction) -> None:
         assert parcel_id in self.parcels, "Parcel ID does not exist"
         record = self.parcels[parcel_id].copy()
+        assert record.status.as_uint64() == 1, "ERROR: Ownership transfer is allowed only for VERIFIED land records."
         assert bool(record.is_for_sale), "Parcel is not for sale"
 
         price = record.price_microalgos.as_uint64()
@@ -195,6 +307,7 @@ class LandContract(ARC4Contract):
         now = Global.latest_timestamp
         updated_record = LandRecord(
             parcel_id=record.parcel_id,
+            survey_number=record.survey_number,
             location=record.location,
             area_sqft=record.area_sqft,
             property_type=record.property_type,
@@ -207,6 +320,11 @@ class LandContract(ARC4Contract):
             document_hash=record.document_hash,
             created_at=record.created_at,
             last_transfer_at=arc4.UInt64(now),
+            status=record.status,
+            verified_by=record.verified_by,
+            verification_timestamp=record.verification_timestamp,
+            rejection_reason=record.rejection_reason,
+            transfer_count=arc4.UInt64(record.transfer_count.as_uint64() + 1),
         )
         self.parcels[parcel_id] = updated_record.copy()
 
@@ -227,4 +345,3 @@ class LandContract(ARC4Contract):
             arc4.Address(Txn.sender) == record.owner or Txn.sender == self.admin.value
         ), "Only land owner or admin can delete land record"
         del self.parcels[parcel_id]
-
