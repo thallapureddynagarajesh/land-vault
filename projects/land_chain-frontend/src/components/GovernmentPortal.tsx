@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { Landmark, PlusCircle, CheckCircle2, AlertTriangle, ShieldCheck, MapPin, FileCode2, User, Hash, FileCheck, Layers, ExternalLink, XCircle, Check, X, FileText } from 'lucide-react'
+import { Landmark, PlusCircle, CheckCircle2, AlertTriangle, ShieldCheck, MapPin, FileCode2, User, Hash, FileCheck, Layers, ExternalLink, XCircle, Check, X, FileText, Eye } from 'lucide-react'
 import { LandParcel } from '../interfaces/land'
 import { getIPFSGatewayUrl } from '../services/ipfs'
+import { DocumentViewerModal } from './DocumentViewerModal'
 
 interface GovernmentPortalProps {
   parcels: LandParcel[]
@@ -31,9 +32,10 @@ export const GovernmentPortal: React.FC<GovernmentPortalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
 
-  // Modals for Approve / Reject
+  // Modals for Approve / Reject / View Document
   const [approvingParcel, setApprovingParcel] = useState<LandParcel | null>(null)
   const [rejectingParcel, setRejectingParcel] = useState<LandParcel | null>(null)
+  const [viewingParcel, setViewingParcel] = useState<LandParcel | null>(null)
   const [rejectionReasonInput, setRejectionReasonInput] = useState('')
   const [reasonError, setReasonError] = useState<string | null>(null)
 
@@ -180,14 +182,12 @@ export const GovernmentPortal: React.FC<GovernmentPortalProps> = ({
                     </div>
 
                     <div className="flex flex-wrap items-center justify-between pt-3 border-t border-slate-800 gap-2">
-                      <a
-                        href={getIPFSGatewayUrl(parcel.ipfsCid)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-800 flex items-center gap-1.5 transition-colors"
+                      <button
+                        onClick={() => setViewingParcel(parcel)}
+                        className="px-3.5 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                       >
-                        <ExternalLink className="w-3.5 h-3.5 text-cyan-400" /> VIEW DOCUMENT
-                      </a>
+                        <Eye className="w-3.5 h-3.5 text-cyan-400" /> VIEW DOCUMENT
+                      </button>
 
                       <div className="flex items-center gap-2">
                         <button
@@ -310,7 +310,7 @@ export const GovernmentPortal: React.FC<GovernmentPortalProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-emerald-600 hover:from-indigo-500 to-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
               >
                 <ShieldCheck className="w-4 h-4" /> Issue Title Deed (Submit PENDING)
               </button>
@@ -318,6 +318,9 @@ export const GovernmentPortal: React.FC<GovernmentPortalProps> = ({
           </div>
         </div>
       </div>
+
+      {/* DOCUMENT VIEWER MODAL */}
+      <DocumentViewerModal parcel={viewingParcel} onClose={() => setViewingParcel(null)} />
 
       {/* APPROVAL CONFIRMATION MODAL */}
       {approvingParcel && (

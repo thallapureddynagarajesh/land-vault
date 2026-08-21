@@ -9,10 +9,10 @@ const ALLOWED_EXTENSIONS = ['pdf', 'png', 'jpg', 'jpeg', 'txt', 'doc', 'docx', '
 
 // List of high-reliability public IPFS gateways used for multi-gateway fallback resolution
 export const PUBLIC_IPFS_GATEWAYS = [
-  { name: 'Protocol Labs IPFS.io (Recommended)', url: 'https://ipfs.io/ipfs/' },
-  { name: 'Cloudflare IPFS Gateway', url: 'https://cloudflare-ipfs.com/ipfs/' },
+  { name: 'Cloudflare IPFS Gateway (Fastest)', url: 'https://cloudflare-ipfs.com/ipfs/' },
   { name: 'Protocol Labs dweb.link', url: 'https://dweb.link/ipfs/' },
-  { name: 'Pinata Public Gateway', url: 'https://gateway.pinata.cloud/ipfs/' },
+  { name: 'Pinata Gateway', url: 'https://gateway.pinata.cloud/ipfs/' },
+  { name: 'Protocol Labs IPFS.io', url: 'https://ipfs.io/ipfs/' },
 ]
 
 export interface UploadIPFSResult {
@@ -74,8 +74,8 @@ export async function calculateSHA256(fileOrBuffer: File | ArrayBuffer): Promise
 
 /**
  * Get primary IPFS gateway URL for a CID
- * Uses custom VITE_PINATA_GATEWAY_URL if configured; otherwise defaults to open public gateway https://ipfs.io/ipfs/
- * to prevent Pinata Public Gateway ERR_ID:00023 restrictions.
+ * Uses custom VITE_PINATA_GATEWAY_URL if configured; otherwise defaults to open public gateway https://cloudflare-ipfs.com/ipfs/
+ * to bypass ipfs.io 500 errors and Pinata Public Gateway ERR_ID:00023 restrictions.
  */
 export function getIPFSGatewayUrl(cid: string, preferredGatewayPrefix?: string): string {
   if (!cid) return ''
@@ -91,14 +91,13 @@ export function getIPFSGatewayUrl(cid: string, preferredGatewayPrefix?: string):
   // 2. Check for configured env gateway
   const envGateway = import.meta.env.VITE_PINATA_GATEWAY_URL || import.meta.env.PINATA_GATEWAY_URL
 
-  // If envGateway is configured to default pinata public gateway, use ipfs.io as default to bypass ERR_ID:00023
   if (envGateway && !envGateway.includes('gateway.pinata.cloud')) {
     const cleanGateway = envGateway.endsWith('/') ? envGateway : `${envGateway}/`
     return `${cleanGateway}${cleanCid}`
   }
 
-  // Default open public gateway for seamless viewing
-  return `https://ipfs.io/ipfs/${cleanCid}`
+  // Fast, reliable public gateway
+  return `https://cloudflare-ipfs.com/ipfs/${cleanCid}`
 }
 
 /**

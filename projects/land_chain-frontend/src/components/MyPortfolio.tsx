@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Building2, MapPin, Tag, Send, ExternalLink, History, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle, XCircle, Trash2 } from 'lucide-react'
+import { Building2, MapPin, Tag, Send, ExternalLink, History, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle, XCircle, Trash2, Eye } from 'lucide-react'
 import { LandParcel } from '../interfaces/land'
+import { DocumentViewerModal } from './DocumentViewerModal'
 
 interface MyPortfolioProps {
   parcels: LandParcel[]
@@ -26,6 +27,8 @@ export const MyPortfolio: React.FC<MyPortfolioProps> = ({
 
   const [transferParcelId, setTransferParcelId] = useState<string | null>(null)
   const [recipientAddress, setRecipientAddress] = useState('')
+
+  const [viewingParcel, setViewingParcel] = useState<LandParcel | null>(null)
 
   const myParcels = connectedAddress
     ? parcels.filter((p) => p.owner.toLowerCase() === connectedAddress.toLowerCase())
@@ -142,15 +145,13 @@ export const MyPortfolio: React.FC<MyPortfolioProps> = ({
                 <div>
                   <span className="text-[11px] text-slate-400 block mb-1">IPFS Document Hash</span>
                   <div className="flex items-center justify-between p-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-cyan-400">
-                    <span className="truncate max-w-[220px]">{parcel.documentHash}</span>
-                    <a
-                      href={`https://ipfs.io/ipfs/${parcel.documentHash}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-slate-400 hover:text-white text-[11px] flex items-center gap-1 font-sans"
+                    <span className="truncate max-w-[180px]">{parcel.documentHash}</span>
+                    <button
+                      onClick={() => setViewingParcel(parcel)}
+                      className="text-cyan-400 hover:text-cyan-300 text-[11px] font-bold flex items-center gap-1 cursor-pointer font-sans bg-cyan-500/10 px-2 py-1 rounded border border-cyan-500/20"
                     >
-                      <ExternalLink className="w-3 h-3" /> View
-                    </a>
+                      <Eye className="w-3 h-3" /> View Doc
+                    </button>
                   </div>
                 </div>
               </div>
@@ -271,6 +272,9 @@ export const MyPortfolio: React.FC<MyPortfolioProps> = ({
           <p className="text-xs text-slate-400 mt-1">You currently do not own any registered land title records on Algorand.</p>
         </div>
       )}
+
+      {/* Document Viewer Modal */}
+      <DocumentViewerModal parcel={viewingParcel} onClose={() => setViewingParcel(null)} />
     </div>
   )
 }
