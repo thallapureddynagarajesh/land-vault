@@ -5,7 +5,7 @@
  */
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024 // 10 MB limit
-const ALLOWED_EXTENSIONS = ['pdf', 'png', 'jpg', 'jpeg', 'txt', 'doc', 'docx']
+const ALLOWED_EXTENSIONS = ['pdf', 'png', 'jpg', 'jpeg', 'txt', 'doc', 'docx', 'enc']
 
 // List of high-reliability public IPFS gateways used for multi-gateway fallback resolution
 export const PUBLIC_IPFS_GATEWAYS = [

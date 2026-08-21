@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 # define deployment behaviour based on supplied app spec
 def deploy() -> None:
     from smart_contracts.artifacts.land_contract.land_contract_client import (
-        HelloArgs,
         LandContractFactory,
     )
 
@@ -36,9 +35,8 @@ def deploy() -> None:
             )
         )
 
-    name = "world"
-    response = app_client.send.hello(args=HelloArgs(name=name))
+    response = app_client.send.get_admin()
     logger.info(
-        f"Called hello on {app_client.app_name} ({app_client.app_id}) "
-        f"with name={name}, received: {response.abi_return}"
+        f"Deployed {app_client.app_name} with App ID: {app_client.app_id}, "
+        f"Admin: {response.abi_return}"
     )
