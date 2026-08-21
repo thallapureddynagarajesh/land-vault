@@ -40,7 +40,7 @@ const initialParcels: LandParcel[] = [
     owner: '79Z1L8B3K4M9V2N5Q7R1T0W3Y6Z9B2C5D8E1F4G7H0J3',
     isApproved: true,
     isForSale: true,
-    priceMicroAlgos: 450000000000, // 450,000 ALGO
+    priceMicroAlgos: 10000000, // 10 ALGO
     ipfsCid: 'QmZ3k9XyB8W7P2K1L5M4N3J6H7G8F9E0D1C2B3A4S5',
     documentHash: 'a8f931b74e2098b14c3562a129d891e4857b29a1482098319208319247192847',
     createdAt: 1770500000,
@@ -56,7 +56,7 @@ const initialParcels: LandParcel[] = [
     owner: '23M4K8L9P1N5V3Q7R2T1W4Y7Z0B3C6D9E2F5G8H1J4K7',
     isApproved: true,
     isForSale: true,
-    priceMicroAlgos: 120000000000, // 120,000 ALGO
+    priceMicroAlgos: 10000000, // 10 ALGO
     ipfsCid: 'QmY1x2Z3W4V5U6T7S8R9Q0P1O2N3M4L5K6J7I8H9',
     documentHash: 'c72b812049812049812049812049812049812049812049812049812049812049',
     createdAt: 1771000000,
