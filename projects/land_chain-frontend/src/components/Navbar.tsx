@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ShieldCheck, Building2, Search, Store, UserCheck, Wallet, ChevronRight, Activity, Copy, Check } from 'lucide-react'
+import { ShieldCheck, Building2, Search, Store, UserCheck, Wallet, ChevronRight, Activity, Copy, Check, X } from 'lucide-react'
 
 interface NavbarProps {
   activeTab: 'search' | 'upload' | 'marketplace' | 'portfolio' | 'government'
@@ -8,6 +8,8 @@ interface NavbarProps {
   setUserRole: (role: 'citizen' | 'registrar' | 'investor') => void
   connectedAddress: string | null
   onConnectWalletClick: () => void
+  searchQuery?: string
+  onSearchChange?: (query: string) => void
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -17,8 +19,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   setUserRole,
   connectedAddress,
   onConnectWalletClick,
+  searchQuery = '',
+  onSearchChange,
 }) => {
   const [copiedNavbarAddress, setCopiedNavbarAddress] = useState(false)
+  const [localSearch, setLocalSearch] = useState(searchQuery)
 
   const handleCopyNavbarAddress = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -28,8 +33,24 @@ export const Navbar: React.FC<NavbarProps> = ({
       setTimeout(() => setCopiedNavbarAddress(false), 2000)
     }
   }
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (onSearchChange) {
+      onSearchChange(localSearch)
+    }
+    setActiveTab('search')
+  }
+
+  const handleClearSearch = () => {
+    setLocalSearch('')
+    if (onSearchChange) {
+      onSearchChange('')
+    }
+  }
+
   return (
-    <header className="sticky top-0 z-40 w-full glass-card border-b border-slate-800/80 px-4 lg:px-8 py-3">
+    <header className="sticky top-0 z-40 w-full glass-card border-b border-slate-800/80 px-4 lg:px-8 py-3 space-y-3">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Brand */}
         <div className="flex items-center justify-between w-full md:w-auto">
@@ -60,68 +81,37 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
 
-        {/* Navigation Tabs */}
-        <nav className="flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800/80 overflow-x-auto max-w-full">
+        {/* Global Top Search Bar */}
+        <form onSubmit={handleSearchSubmit} className="w-full md:max-w-md flex items-center relative">
+          <div className="relative w-full">
+            <Search className="w-4 h-4 text-emerald-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search by Parcel ID, Survey No (e.g. SURVEY-123), or Location..."
+              value={localSearch}
+              onChange={(e) => {
+                setLocalSearch(e.target.value)
+                if (onSearchChange) onSearchChange(e.target.value)
+              }}
+              className="w-full pl-10 pr-9 py-2 rounded-xl glass-input text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 transition-all font-mono"
+            />
+            {localSearch && (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
           <button
-            onClick={() => setActiveTab('search')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap ${
-              activeTab === 'search'
-                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 font-semibold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-            }`}
+            type="submit"
+            className="ml-2 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 shrink-0 transition-colors shadow-md cursor-pointer"
           >
-            <Search className="w-3.5 h-3.5" />
-            Title Verification
+            <Search className="w-3.5 h-3.5" /> Search
           </button>
-
-          <button
-            onClick={() => setActiveTab('upload')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap ${
-              activeTab === 'upload'
-                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 font-semibold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5 text-cyan-400" />
-            Upload Land Document
-          </button>
-
-          <button
-            onClick={() => setActiveTab('marketplace')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap ${
-              activeTab === 'marketplace'
-                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 font-semibold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-            }`}
-          >
-            <Store className="w-3.5 h-3.5" />
-            Marketplace
-          </button>
-
-          <button
-            onClick={() => setActiveTab('portfolio')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap ${
-              activeTab === 'portfolio'
-                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 font-semibold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5" />
-            My Portfolio
-          </button>
-
-          <button
-            onClick={() => setActiveTab('government')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap ${
-              activeTab === 'government'
-                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 font-semibold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-            }`}
-          >
-            <UserCheck className="w-3.5 h-3.5" />
-            Gov Portal
-          </button>
-        </nav>
+        </form>
 
         {/* Right Section: Role Switcher & Wallet */}
         <div className="hidden md:flex items-center gap-3">
@@ -167,6 +157,71 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </div>
         </div>
+      </div>
+
+      {/* Navigation Tabs Bar */}
+      <div className="max-w-7xl mx-auto flex items-center justify-center">
+        <nav className="flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800/80 overflow-x-auto max-w-full">
+          <button
+            onClick={() => setActiveTab('search')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+              activeTab === 'search'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 font-semibold'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <Search className="w-3.5 h-3.5" />
+            Title Verification
+          </button>
+
+          <button
+            onClick={() => setActiveTab('upload')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+              activeTab === 'upload'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 font-semibold'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5 text-cyan-400" />
+            Upload Land Document
+          </button>
+
+          <button
+            onClick={() => setActiveTab('marketplace')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+              activeTab === 'marketplace'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 font-semibold'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <Store className="w-3.5 h-3.5" />
+            Marketplace
+          </button>
+
+          <button
+            onClick={() => setActiveTab('portfolio')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+              activeTab === 'portfolio'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 font-semibold'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5" />
+            My Portfolio
+          </button>
+
+          <button
+            onClick={() => setActiveTab('government')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+              activeTab === 'government'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 font-semibold'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <UserCheck className="w-3.5 h-3.5" />
+            Gov Portal
+          </button>
+        </nav>
       </div>
     </header>
   )

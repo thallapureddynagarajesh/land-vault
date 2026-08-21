@@ -13,6 +13,7 @@ interface LandVerificationProps {
   connectedAddress?: string | null
   userRole?: 'citizen' | 'registrar' | 'investor'
   onConnectWalletClick?: () => void
+  externalSearchQuery?: string
 }
 
 export const LandVerification: React.FC<LandVerificationProps> = ({
@@ -23,11 +24,29 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
   connectedAddress,
   userRole = 'citizen',
   onConnectWalletClick,
+  externalSearchQuery = '',
 }) => {
   const { activeAddress, activeWallet, transactionSigner } = useWallet()
 
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState(externalSearchQuery)
   const [selectedParcel, setSelectedParcel] = useState<LandParcel | null>(parcels[0] || null)
+
+  React.useEffect(() => {
+    if (externalSearchQuery) {
+      setSearchQuery(externalSearchQuery)
+      const q = externalSearchQuery.trim().toLowerCase()
+      const match = parcels.find(
+        (p) =>
+          p.parcelId.toLowerCase() === q ||
+          (p.surveyNumber && p.surveyNumber.toLowerCase() === q) ||
+          p.owner.toLowerCase() === q ||
+          p.location.toLowerCase().includes(q)
+      )
+      if (match) {
+        setSelectedParcel(match)
+      }
+    }
+  }, [externalSearchQuery, parcels])
   const [copiedHash, setCopiedHash] = useState(false)
 
   // Document verification file upload state

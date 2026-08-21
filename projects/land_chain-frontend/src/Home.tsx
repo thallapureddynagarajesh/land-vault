@@ -170,6 +170,7 @@ export const Home: React.FC = () => {
   const [userRole, setUserRole] = useState<'citizen' | 'registrar' | 'investor'>('citizen')
   const [auditModalParcelId, setAuditModalParcelId] = useState<string | null>(null)
   const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
+  const [globalSearchQuery, setGlobalSearchQuery] = useState<string>('')
 
   // Generate mock Algorand transaction hash
   const generateTxHash = () => {
@@ -466,6 +467,8 @@ export const Home: React.FC = () => {
         setUserRole={setUserRole}
         connectedAddress={activeAddress}
         onConnectWalletClick={() => setOpenWalletModal(true)}
+        searchQuery={globalSearchQuery}
+        onSearchChange={(q) => setGlobalSearchQuery(q)}
       />
 
       {/* Main Body Layout */}
@@ -488,6 +491,7 @@ export const Home: React.FC = () => {
             connectedAddress={activeAddress}
             userRole={userRole}
             onConnectWalletClick={() => setOpenWalletModal(true)}
+            externalSearchQuery={globalSearchQuery}
           />
         )}
 
