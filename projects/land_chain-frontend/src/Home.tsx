@@ -458,7 +458,7 @@ export const Home: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950">
+    <div className="min-h-screen flex flex-col bg-stone-50 text-stone-800 font-sans selection:bg-amber-800 selection:text-white">
       {/* Navigation Header */}
       <Navbar
         activeTab={activeTab}

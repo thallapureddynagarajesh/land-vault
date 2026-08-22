@@ -5,11 +5,11 @@
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: #030712;
+    background-color: #faf7f2;
     background-image: 
-      radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
-      radial-gradient(at 50% 100%, rgba(99, 102, 241, 0.05) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(139, 69, 19, 0.04) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(212, 165, 116, 0.05) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(107, 52, 16, 0.03) 0px, transparent 50%);
     background-attachment: fixed;
   }
 
@@ -19,49 +19,51 @@
 }
 
 .glass-card {
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(139, 69, 19, 0.1);
+  box-shadow: 0 1px 3px rgba(139, 69, 19, 0.06), 0 4px 12px rgba(139, 69, 19, 0.04);
 }
 
 .glass-card-hover {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .glass-card-hover:hover {
-  background: rgba(30, 41, 59, 0.75);
-  border-color: rgba(16, 185, 129, 0.3);
-  box-shadow: 0 12px 30px -10px rgba(16, 185, 129, 0.15);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(139, 69, 19, 0.25);
+  box-shadow: 0 8px 30px -10px rgba(139, 69, 19, 0.15), 0 2px 8px rgba(139, 69, 19, 0.06);
   transform: translateY(-2px);
 }
 
 .glass-input {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(139, 69, 19, 0.15);
   transition: all 0.2s ease;
+  color: #2d1608;
 }
 .glass-input:focus {
-  border-color: #10b981;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  border-color: #8B4513;
+  box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.15);
   outline: none;
 }
 
 .gradient-text-emerald {
-  background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #06b6d4 100%);
+  background: linear-gradient(135deg, #8B4513 0%, #a0673a 50%, #d4a574 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .gradient-text-gold {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  background: linear-gradient(135deg, #8B4513 0%, #6B3410 50%, #4a250e 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .badge-verified {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15));
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  color: #34d399;
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.1), rgba(21, 128, 61, 0.1));
+  border: 1px solid rgba(22, 163, 74, 0.3);
+  color: #15803d;
 }
 
 .animate-pulse-subtle {
@@ -79,13 +81,12 @@
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #030712;
+  background: #faf7f2;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #d4a574;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #a0673a;
 }
-
