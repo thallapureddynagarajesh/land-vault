@@ -1,6 +1,6 @@
 import { useWallet } from '@txnlab/use-wallet-react'
 import { useSnackbar } from 'notistack'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Navbar } from './components/Navbar'
 import { MetricsHeader } from './components/MetricsHeader'
 import { LandVerification } from './components/LandVerification'
@@ -12,6 +12,7 @@ import { AuditTrailModal } from './components/AuditTrailModal'
 import { LandChainFooter } from './components/LandChainFooter'
 import ConnectWallet from './components/ConnectWallet'
 import { AuditEvent, LandParcel } from './interfaces/land'
+import { fetchRealAuditTrailFromIndexer } from './services/algorandLedger'
 
 // Initial Seed Land Records with IPFS CIDs & Document Types
 const initialParcels: LandParcel[] = [
@@ -171,6 +172,19 @@ export const Home: React.FC = () => {
   const [auditModalParcelId, setAuditModalParcelId] = useState<string | null>(null)
   const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
   const [globalSearchQuery, setGlobalSearchQuery] = useState<string>('')
+
+  // Fetch real Indexer audit events when modal opens
+  useEffect(() => {
+    if (!auditModalParcelId) return
+    fetchRealAuditTrailFromIndexer(auditModalParcelId).then((realEvents) => {
+      if (realEvents && realEvents.length > 0) {
+        setAuditEvents((prev) => {
+          const filtered = prev.filter((e) => e.parcelId !== auditModalParcelId)
+          return [...realEvents, ...filtered]
+        })
+      }
+    })
+  }, [auditModalParcelId])
 
   // Generate mock Algorand transaction hash
   const generateTxHash = () => {

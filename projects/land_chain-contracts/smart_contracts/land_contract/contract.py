@@ -104,6 +104,7 @@ class LandContract(ARC4Contract):
         document_hash: String,
     ) -> None:
         # Legacy/Admin direct land registration compatibility method
+        assert Txn.sender == self.admin.value, "Only admin can register land directly"
         assert parcel_id not in self.parcels, "Parcel ID already registered"
 
         now = Global.latest_timestamp

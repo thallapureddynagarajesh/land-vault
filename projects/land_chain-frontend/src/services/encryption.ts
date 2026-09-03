@@ -19,19 +19,21 @@ export interface AccessPermission {
 }
 
 /**
- * Derive a 256-bit AES-GCM CryptoKey deterministically from parcel metadata
+ * Derive a 256-bit AES-GCM CryptoKey deterministically using parcel metadata & secret pepper key
  */
 export async function deriveParcelKey(parcelId: string, ownerAddress: string): Promise<CryptoKey> {
   const enc = new TextEncoder()
+  const envPepper = (import.meta.env && import.meta.env.VITE_ENCRYPTION_SECRET_KEY) || 'LANDVAULT_PROD_MASTER_PEPPER_KEY_2026'
   const keyMaterial = await window.crypto.subtle.importKey(
     'raw',
-    enc.encode(`LANDVAULT_SECRET_${parcelId}_${ownerAddress}`),
+    enc.encode(`LANDVAULT_SECRET_${envPepper}_${parcelId}_${ownerAddress}`),
     'PBKDF2',
     false,
     ['deriveKey']
   )
 
-  const salt = enc.encode(`SALT_${parcelId.slice(0, 8)}`)
+  const saltBuffer = await window.crypto.subtle.digest('SHA-256', enc.encode(`SALT_${envPepper}_${parcelId}`))
+  const salt = new Uint8Array(saltBuffer)
 
   return await window.crypto.subtle.deriveKey(
     {
@@ -48,7 +50,8 @@ export async function deriveParcelKey(parcelId: string, ownerAddress: string): P
 }
 
 /**
- * Encrypt a file using AES-256-GCM before uploading to IPFS
+ * Encrypt a file using AES-256-GCM before uploading to IPFS.
+ * Packs the 12-byte IV into a self-contained payload envelope: [12-byte IV][Ciphertext]
  */
 export async function encryptFileForIPFS(
   file: File,
@@ -62,13 +65,13 @@ export async function encryptFileForIPFS(
   const hashArray = Array.from(new Uint8Array(hashBuffer))
   const originalHash = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 
-  // 2. Generate initialization vector (IV)
+  // 2. Generate random 12-byte initialization vector (IV)
   const iv = window.crypto.getRandomValues(new Uint8Array(12))
   const ivHex = Array.from(iv).map((b) => b.toString(16).padStart(2, '0')).join('')
 
   // 3. Derive AES-GCM key and encrypt
   const cryptoKey = await deriveParcelKey(parcelId, ownerAddress)
-  const encryptedBuffer = await window.crypto.subtle.encrypt(
+  const rawCipherBuffer = await window.crypto.subtle.encrypt(
     {
       name: 'AES-GCM',
       iv,
@@ -77,8 +80,13 @@ export async function encryptFileForIPFS(
     fileBuffer
   )
 
+  // 4. Pack IV into binary payload envelope: [12B IV][Ciphertext]
+  const envelope = new Uint8Array(12 + rawCipherBuffer.byteLength)
+  envelope.set(iv, 0)
+  envelope.set(new Uint8Array(rawCipherBuffer), 12)
+
   return {
-    encryptedBuffer,
+    encryptedBuffer: envelope.buffer,
     ivHex,
     originalHash,
     fileName: file.name,
@@ -127,20 +135,48 @@ export async function decryptFileFromIPFS(
   ownerAddress: string,
   fileType: string = 'application/pdf'
 ): Promise<Blob> {
-  const ivBytes = new Uint8Array(
-    ivHex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || new Array(12).fill(0)
-  )
+  const fullBytes = new Uint8Array(encryptedBuffer)
+  let ivBytes: Uint8Array
+  let cipherBytes: ArrayBuffer
+
+  // If payload contains envelope header [12-byte IV][Ciphertext]
+  if (fullBytes.length > 28) {
+    ivBytes = new Uint8Array(fullBytes.buffer.slice(0, 12))
+    cipherBytes = fullBytes.buffer.slice(12)
+  } else {
+    // Legacy fallback using passed ivHex
+    ivBytes = new Uint8Array(
+      ivHex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || new Array(12).fill(0)
+    )
+    cipherBytes = encryptedBuffer
+  }
 
   const cryptoKey = await deriveParcelKey(parcelId, ownerAddress)
 
-  const decryptedBuffer = await window.crypto.subtle.decrypt(
-    {
-      name: 'AES-GCM',
-      iv: ivBytes,
-    },
-    cryptoKey,
-    encryptedBuffer
-  )
+  let decryptedBuffer: ArrayBuffer
+  try {
+    decryptedBuffer = await window.crypto.subtle.decrypt(
+      {
+        name: 'AES-GCM',
+        iv: ivBytes as any,
+      },
+      cryptoKey,
+      cipherBytes
+    )
+  } catch (err) {
+    // If decryption fails with envelope IV, try raw buffer with passed ivHex
+    const fallbackIv = new Uint8Array(
+      ivHex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || new Array(12).fill(0)
+    )
+    decryptedBuffer = await window.crypto.subtle.decrypt(
+      {
+        name: 'AES-GCM',
+        iv: fallbackIv as any,
+      },
+      cryptoKey,
+      encryptedBuffer
+    )
+  }
 
   const detectedMime = detectMimeType(decryptedBuffer)
   return new Blob([decryptedBuffer], { type: detectedMime || fileType })

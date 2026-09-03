@@ -220,6 +220,7 @@ export const LandVerification: React.FC<LandVerificationProps> = ({
       }, 700)
     } catch (err) {
       console.error('File hashing error:', err)
+      setFileVerificationStatus('MISMATCH')
       setIsVerifyingFile(false)
     }
   }
