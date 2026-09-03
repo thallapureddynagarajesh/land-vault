@@ -61,22 +61,22 @@ export const MyPortfolio: React.FC<MyPortfolioProps> = ({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       {/* Header Banner */}
-      <div className="glass-card p-6 lg:p-8 rounded-3xl border border-earth-600/15 relative overflow-hidden">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3.5 rounded-2xl bg-earth-600/10 text-earth-700 border border-earth-600/15">
-              <Building2 className="w-8 h-8" />
+      <div className="glass-card p-4 sm:p-5 rounded-2xl border border-stone-200/90 relative overflow-hidden shadow-xs">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-earth-50 text-earth-700 border border-earth-200">
+              <Building2 className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-bold text-stone-800">Landowner Portfolio Dashboard</h2>
-                <span className="px-2.5 py-0.5 rounded-full bg-earth-600/10 text-earth-700 border border-earth-600/15 text-xs font-semibold">
+                <h2 className="text-lg sm:text-xl font-bold text-stone-900">Landowner Portfolio Dashboard</h2>
+                <span className="px-2 py-0.5 rounded-full bg-earth-50 text-earth-700 border border-earth-200 text-[10px] font-semibold">
                   Personal Holdings
                 </span>
               </div>
-              <p className="text-xs text-stone-400 mt-1">Manage your certified real-estate holdings, track verification status, issue sale listings, or transfer ownership on Algorand.</p>
+              <p className="text-xs text-stone-500 mt-0.5">Manage your certified real-estate holdings, track verification status, issue sale listings, or transfer ownership on Algorand.</p>
             </div>
           </div>
 

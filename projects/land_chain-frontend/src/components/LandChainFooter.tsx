@@ -1,77 +1,52 @@
 import React from 'react'
-import { ShieldCheck, Cpu, Database, Lock, Code2, Globe } from 'lucide-react'
+import { ShieldCheck, Cpu, Database, Lock, Code2, Globe, ExternalLink } from 'lucide-react'
 
 export const LandChainFooter: React.FC = () => {
   return (
-    <footer className="mt-16 border-t border-earth-200/50 bg-earth-800 pt-12 pb-8 text-xs text-earth-200">
-      <div className="max-w-7xl mx-auto px-4 lg:px-8 space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand Col */}
-          <div className="space-y-3 md:col-span-1">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-earth-300" />
-              <span className="font-extrabold text-lg text-white">LandChain</span>
+    <footer className="mt-12 border-t border-earth-600/10 bg-white/80 backdrop-blur-sm py-6 text-xs text-stone-500">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* Brand & Mission */}
+          <div className="flex items-center gap-3">
+            <div className="h-6 w-6 rounded-md bg-earth-600/10 flex items-center justify-center border border-earth-600/20">
+              <ShieldCheck className="w-4 h-4 text-earth-600" />
             </div>
-            <p className="text-xs text-earth-300 leading-relaxed">
-              Decentralized, tamper-proof secure land registry powered by Algorand smart contracts & IPFS document encryption.
-            </p>
+            <div>
+              <span className="font-bold text-stone-800">LandVault Registry</span>
+              <span className="text-stone-400 mx-2">•</span>
+              <span className="text-stone-500 text-[11px]">Algorand ARC-4 Smart Contract Box Storage + IPFS AES-256</span>
+            </div>
           </div>
 
-          {/* Architecture Specs */}
-          <div>
-            <h4 className="font-semibold text-white uppercase tracking-wider text-[11px] mb-3 flex items-center gap-1.5">
-              <Cpu className="w-3.5 h-3.5 text-earth-300" /> Blockchain Standard
-            </h4>
-            <ul className="space-y-2 text-[11px] text-earth-300 font-mono">
-              <li>• Algorand AVM (ARC-4 standard)</li>
-              <li>• Puya PyTeal / Algopy Smart Contract</li>
-              <li>• On-Chain Box Storage (Zero Rent Leak)</li>
-              <li>• Block Time: ~2.8 seconds finality</li>
-            </ul>
+          {/* Quick Specs / Trust Chips */}
+          <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono">
+            <span className="px-2 py-0.5 rounded-md bg-stone-100 border border-stone-200 text-stone-600">
+              App ID: #10084920
+            </span>
+            <span className="px-2 py-0.5 rounded-md bg-green-50 border border-green-200 text-green-700 font-sans flex items-center gap-1 font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-600" /> Operational (~2.8s finality)
+            </span>
           </div>
 
-          {/* Security & Decentralization */}
-          <div>
-            <h4 className="font-semibold text-white uppercase tracking-wider text-[11px] mb-3 flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5 text-earth-300" /> Trust & Compliance
-            </h4>
-            <ul className="space-y-2 text-[11px] text-earth-300">
-              <li>• Government Registrar Validation</li>
-              <li>• IPFS Cryptographic Title Deed Hashes</li>
-              <li>• Peer-to-Peer Atomic Payment Transfer</li>
-              <li>• Immutable Provenance & Audit Logs</li>
-            </ul>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h4 className="font-semibold text-white uppercase tracking-wider text-[11px] mb-3 flex items-center gap-1.5">
-              <Database className="w-3.5 h-3.5 text-earth-300" /> Resources
-            </h4>
-            <ul className="space-y-2 text-[11px] text-earth-300">
-              <li>
-                <a href="https://algorand.co" target="_blank" rel="noreferrer" className="hover:text-white transition-colors flex items-center gap-1">
-                  <Globe className="w-3 h-3" /> Algorand Network
-                </a>
-              </li>
-              <li>
-                <a href="https://github.com/algorandfoundation/algokit-cli" target="_blank" rel="noreferrer" className="hover:text-white transition-colors flex items-center gap-1">
-                  <Code2 className="w-3 h-3" /> AlgoKit Standard
-                </a>
-              </li>
-              <li>
-                <span className="text-earth-400">Smart Contract App ID: #10084920</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="pt-6 border-t border-earth-700/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-earth-400">
-          <p>© {new Date().getFullYear()} LandChain Secure Registry System. Built on Algorand Blockchain.</p>
-          <div className="flex items-center gap-4">
-            <span>Terms of Service</span>
-            <span>Privacy Standard</span>
-            <span>Government API</span>
+          {/* External Links & Copyright */}
+          <div className="flex items-center gap-4 text-[11px] text-stone-400">
+            <a
+              href="https://algorand.co"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-earth-600 transition-colors flex items-center gap-1"
+            >
+              Algorand <ExternalLink className="w-2.5 h-2.5" />
+            </a>
+            <a
+              href="https://ipfs.tech"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-earth-600 transition-colors flex items-center gap-1"
+            >
+              IPFS <ExternalLink className="w-2.5 h-2.5" />
+            </a>
+            <span>© {new Date().getFullYear()} LandVault System</span>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { ShieldCheck, FileCheck, ShoppingCart, Landmark, ArrowUpRight, Cpu } from 'lucide-react'
+import { ShieldCheck, ShoppingCart, Landmark, ArrowUpRight, Cpu } from 'lucide-react'
 
 interface MetricsHeaderProps {
   totalParcels: number
@@ -15,73 +15,69 @@ export const MetricsHeader: React.FC<MetricsHeaderProps> = ({
   totalVolumeAlgos,
 }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mb-5">
       {/* Metric 1 */}
-      <div className="glass-card glass-card-hover p-5 rounded-2xl relative overflow-hidden group">
-        <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-earth-600/5 rounded-full blur-xl group-hover:bg-earth-600/10 transition-all" />
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-stone-400">Total Registered Land</span>
-          <div className="p-2.5 rounded-xl bg-earth-600/10 text-earth-600 border border-earth-600/15">
-            <Landmark className="w-5 h-5" />
+      <div className="bg-white p-3 rounded-xl border border-stone-200/90 shadow-xs hover:border-earth-600/30 transition-all">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Total Registered</span>
+          <div className="p-1 rounded-md bg-earth-50 text-earth-700 border border-earth-100">
+            <Landmark className="w-3.5 h-3.5" />
           </div>
         </div>
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-extrabold text-stone-800 tracking-tight">{totalParcels}</span>
-          <span className="text-xs text-earth-600 font-medium flex items-center">
-            <ArrowUpRight className="w-3.5 h-3.5" /> +100% On-Chain
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-xl font-bold text-stone-900 tracking-tight">{totalParcels}</span>
+          <span className="text-[10px] text-earth-700 font-medium flex items-center">
+            <ArrowUpRight className="w-2.5 h-2.5" /> AVM Box
           </span>
         </div>
-        <p className="text-xs text-stone-400 mt-2 font-mono">Immutable AVM Box Records</p>
+        <p className="text-[10px] text-stone-400 mt-0.5 font-mono">Zero-Rent Storage</p>
       </div>
 
       {/* Metric 2 */}
-      <div className="glass-card glass-card-hover p-5 rounded-2xl relative overflow-hidden group">
-        <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-green-600/5 rounded-full blur-xl group-hover:bg-green-600/10 transition-all" />
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-stone-400">Gov Verified Deeds</span>
-          <div className="p-2.5 rounded-xl bg-green-600/10 text-green-700 border border-green-600/15">
-            <ShieldCheck className="w-5 h-5" />
+      <div className="bg-white p-3 rounded-xl border border-stone-200/90 shadow-xs hover:border-green-600/30 transition-all">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Gov Verified</span>
+          <div className="p-1 rounded-md bg-green-50 text-green-700 border border-green-100">
+            <ShieldCheck className="w-3.5 h-3.5" />
           </div>
         </div>
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-extrabold text-stone-800 tracking-tight">{verifiedCount}</span>
-          <span className="text-xs text-green-700 font-medium font-mono">
-            {((verifiedCount / (totalParcels || 1)) * 100).toFixed(0)}% Authenticated
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-xl font-bold text-stone-900 tracking-tight">{verifiedCount}</span>
+          <span className="text-[10px] text-green-700 font-bold font-mono">
+            {((verifiedCount / (totalParcels || 1)) * 100).toFixed(0)}% Certified
           </span>
         </div>
-        <p className="text-xs text-stone-400 mt-2">Zero Ownership Disputes</p>
+        <p className="text-[10px] text-stone-400 mt-0.5">Zero Disputes</p>
       </div>
 
       {/* Metric 3 */}
-      <div className="glass-card glass-card-hover p-5 rounded-2xl relative overflow-hidden group">
-        <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-amber-500/5 rounded-full blur-xl group-hover:bg-amber-500/10 transition-all" />
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-stone-400">Active Listings</span>
-          <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/15">
-            <ShoppingCart className="w-5 h-5" />
+      <div className="bg-white p-3 rounded-xl border border-stone-200/90 shadow-xs hover:border-amber-600/30 transition-all">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Active Listings</span>
+          <div className="p-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">
+            <ShoppingCart className="w-3.5 h-3.5" />
           </div>
         </div>
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-extrabold text-stone-800 tracking-tight">{activeListingsCount}</span>
-          <span className="text-xs text-amber-600 font-medium">Atomic Marketplace</span>
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-xl font-bold text-stone-900 tracking-tight">{activeListingsCount}</span>
+          <span className="text-[10px] text-amber-700 font-medium">Marketplace</span>
         </div>
-        <p className="text-xs text-stone-400 mt-2">Peer-to-Peer Transfer</p>
+        <p className="text-[10px] text-stone-400 mt-0.5">Atomic Settlement</p>
       </div>
 
       {/* Metric 4 */}
-      <div className="glass-card glass-card-hover p-5 rounded-2xl relative overflow-hidden group">
-        <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-earth-400/5 rounded-full blur-xl group-hover:bg-earth-400/10 transition-all" />
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-stone-400">Market Volume</span>
-          <div className="p-2.5 rounded-xl bg-earth-400/10 text-earth-700 border border-earth-400/15">
-            <Cpu className="w-5 h-5" />
+      <div className="bg-white p-3 rounded-xl border border-stone-200/90 shadow-xs hover:border-earth-600/30 transition-all">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Market Volume</span>
+          <div className="p-1 rounded-md bg-earth-50 text-earth-700 border border-earth-100">
+            <Cpu className="w-3.5 h-3.5" />
           </div>
         </div>
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-extrabold text-stone-800 tracking-tight">{totalVolumeAlgos.toLocaleString()}</span>
-          <span className="text-xs text-earth-700 font-bold font-mono">ALGO</span>
+        <div className="flex items-baseline gap-1">
+          <span className="text-xl font-bold text-stone-900 tracking-tight">{totalVolumeAlgos.toLocaleString()}</span>
+          <span className="text-[10px] text-earth-700 font-bold font-mono">ALGO</span>
         </div>
-        <p className="text-xs text-stone-400 mt-2 font-mono">Instant Settlement (~2.8s)</p>
+        <p className="text-[10px] text-stone-400 mt-0.5 font-mono">~2.8s Block Time</p>
       </div>
     </div>
   )

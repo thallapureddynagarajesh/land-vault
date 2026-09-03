@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ShieldCheck, Building2, Search, Store, UserCheck, Wallet, ChevronRight, Activity, Copy, Check, X } from 'lucide-react'
+import { ShieldCheck, Building2, Search, Store, UserCheck, Wallet, Activity, Copy, Check, X } from 'lucide-react'
 
 interface NavbarProps {
   activeTab: 'search' | 'upload' | 'marketplace' | 'portfolio' | 'government'
@@ -24,6 +24,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [copiedNavbarAddress, setCopiedNavbarAddress] = useState(false)
   const [localSearch, setLocalSearch] = useState(searchQuery)
+  const [showSearchModal, setShowSearchModal] = useState(false)
 
   const handleCopyNavbarAddress = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -40,6 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       onSearchChange(localSearch)
     }
     setActiveTab('search')
+    setShowSearchModal(false)
   }
 
   const handleClearSearch = () => {
@@ -49,179 +51,195 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   }
 
+  const navItems: { id: 'search' | 'upload' | 'marketplace' | 'portfolio' | 'government'; label: string; icon: any }[] = [
+    { id: 'search', label: 'Verify', icon: Search },
+    { id: 'upload', label: 'Upload Deed', icon: Building2 },
+    { id: 'marketplace', label: 'Marketplace', icon: Store },
+    { id: 'portfolio', label: 'My Portfolio', icon: Building2 },
+    { id: 'government', label: 'Gov Portal', icon: UserCheck },
+  ]
+
   return (
-    <header className="sticky top-0 z-40 w-full glass-card border-b border-earth-200/50 px-4 lg:px-8 py-3 space-y-3">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Brand */}
-        <div className="flex items-center justify-between w-full md:w-auto">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('search')}>
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-earth-700 via-earth-600 to-earth-400 p-0.5 shadow-lg shadow-earth-600/15">
-              <div className="h-full w-full bg-white rounded-[10px] flex items-center justify-center">
-                <ShieldCheck className="w-6 h-6 text-earth-600" />
-              </div>
+    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-stone-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      <div className="w-full max-w-7xl mx-auto px-2.5 sm:px-4 lg:px-6">
+        <div className="flex items-center justify-between h-12 gap-1.5 sm:gap-3">
+          {/* 1. Left: Brand Identity */}
+          <div
+            className="flex items-center gap-1.5 sm:gap-2 shrink-0 cursor-pointer select-none"
+            onClick={() => setActiveTab('search')}
+          >
+            <div className="h-7 w-7 rounded-lg bg-earth-700 flex items-center justify-center shadow-xs">
+              <ShieldCheck className="w-4 h-4 text-white" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-xl tracking-tight text-stone-800">Land<span className="gradient-text-emerald">Vault</span></span>
-                <span className="px-2 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-wider rounded-full bg-earth-600/10 text-earth-600 border border-earth-600/20 flex items-center gap-1">
-                  <Activity className="w-2.5 h-2.5 animate-pulse" /> Algorand + IPFS
-                </span>
-              </div>
-              <p className="text-xs text-stone-400">Decentralized IPFS Land Record Management</p>
+            <div className="flex items-center gap-1">
+              <span className="font-extrabold text-sm sm:text-base tracking-tight text-stone-900">
+                Land<span className="text-earth-600">Vault</span>
+              </span>
+              <span className="hidden xl:inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono font-medium bg-earth-50 text-earth-800 border border-earth-200/80">
+                Algorand
+              </span>
             </div>
           </div>
 
-          {/* Wallet Trigger Mobile */}
-          <button
-            onClick={onConnectWalletClick}
-            className="md:hidden px-3 py-1.5 rounded-lg text-xs font-semibold bg-stone-100 hover:bg-stone-200 text-earth-600 border border-stone-200 flex items-center gap-1.5"
-          >
-            <Wallet className="w-3.5 h-3.5" />
-            {connectedAddress ? `${connectedAddress.slice(0, 4)}...${connectedAddress.slice(-4)}` : 'Wallet'}
-          </button>
+          {/* 2. Center: Navigation Tabs */}
+          <nav className="hidden md:flex items-center gap-0.5 bg-stone-100/90 p-0.5 rounded-lg border border-stone-200/90">
+            {navItems.map((item) => {
+              const Icon = item.icon
+              const isActive = activeTab === item.id
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`px-2 sm:px-2.5 py-1 rounded-md text-[11px] font-medium transition-all flex items-center gap-1 whitespace-nowrap cursor-pointer ${
+                    isActive
+                      ? 'bg-earth-600 text-white shadow-xs font-bold'
+                      : 'text-stone-600 hover:text-stone-900 hover:bg-white/80'
+                  }`}
+                >
+                  <Icon className="w-3 h-3" />
+                  <span>{item.label}</span>
+                </button>
+              )
+            })}
+          </nav>
+
+          {/* 3. Right: Search Trigger, Role Selector & Wallet Button */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Compact inline search on wide screens */}
+            <form onSubmit={handleSearchSubmit} className="relative hidden xl:flex items-center">
+              <div className="relative">
+                <Search className="w-3 h-3 text-stone-400 absolute left-2 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="PIN / Survey..."
+                  value={localSearch}
+                  onChange={(e) => {
+                    setLocalSearch(e.target.value)
+                    if (onSearchChange) onSearchChange(e.target.value)
+                  }}
+                  className="w-28 focus:w-36 pl-6 pr-4 py-1 rounded-md bg-stone-50 border border-stone-200 text-[11px] text-stone-700 placeholder-stone-400 focus:outline-none focus:bg-white focus:border-earth-600/50 transition-all font-mono"
+                />
+                {localSearch && (
+                  <button
+                    type="button"
+                    onClick={handleClearSearch}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+                  >
+                    <X className="w-2.5 h-2.5" />
+                  </button>
+                )}
+              </div>
+            </form>
+
+            {/* Quick search icon button on medium screens */}
+            <button
+              onClick={() => setShowSearchModal(!showSearchModal)}
+              className="xl:hidden p-1.5 rounded-md bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200 transition-colors cursor-pointer"
+              title="Search Land Records"
+            >
+              <Search className="w-3.5 h-3.5 text-stone-600" />
+            </button>
+
+            {/* Role Switcher Pill */}
+            <div className="flex items-center bg-stone-50 px-1.5 py-0.5 rounded-md border border-stone-200 text-[11px]">
+              <span className="text-stone-400 text-[10px] mr-1 hidden sm:inline">Role:</span>
+              <select
+                value={userRole}
+                onChange={(e) => setUserRole(e.target.value as any)}
+                className="bg-transparent text-earth-800 font-semibold focus:outline-none cursor-pointer text-[11px]"
+              >
+                <option value="citizen" className="bg-white text-stone-700">Citizen</option>
+                <option value="registrar" className="bg-white text-stone-700">Registrar (Gov)</option>
+                <option value="investor" className="bg-white text-stone-700">Investor</option>
+              </select>
+            </div>
+
+            {/* Always-Visible Wallet Connection Button */}
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={onConnectWalletClick}
+                className="px-2.5 sm:px-3 py-1 rounded-md text-[11px] font-semibold bg-earth-600 hover:bg-earth-700 text-white shadow-xs flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shrink-0" />
+                <Wallet className="w-3 h-3 text-white shrink-0" />
+                {connectedAddress ? (
+                  <span className="font-mono text-white text-[11px]">
+                    {connectedAddress.slice(0, 4)}...{connectedAddress.slice(-4)}
+                  </span>
+                ) : (
+                  <span>Connect Wallet</span>
+                )}
+              </button>
+
+              {connectedAddress && (
+                <button
+                  onClick={handleCopyNavbarAddress}
+                  title="Copy Wallet Address"
+                  className="p-1 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-600 border border-stone-200 transition-all cursor-pointer shrink-0"
+                >
+                  {copiedNavbarAddress ? <Check className="w-3 h-3 text-green-600" /> : <Copy className="w-3 h-3" />}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Global Top Search Bar */}
-        <form onSubmit={handleSearchSubmit} className="w-full md:max-w-md flex items-center relative">
-          <div className="relative w-full">
-            <Search className="w-4 h-4 text-earth-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search by Parcel ID, Survey No (e.g. SURVEY-123), or Location..."
-              value={localSearch}
-              onChange={(e) => {
-                setLocalSearch(e.target.value)
-                if (onSearchChange) onSearchChange(e.target.value)
-              }}
-              className="w-full pl-10 pr-9 py-2 rounded-xl glass-input text-xs text-stone-700 placeholder-stone-400 focus:outline-none focus:border-earth-600/50 transition-all font-mono"
-            />
-            {localSearch && (
+        {/* Mobile / Tablet Horizontal Navigation Tabs */}
+        <div className="flex md:hidden items-center justify-between overflow-x-auto py-1 border-t border-stone-100 gap-1 scrollbar-none">
+          {navItems.map((item) => {
+            const Icon = item.icon
+            const isActive = activeTab === item.id
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all flex items-center gap-1 whitespace-nowrap shrink-0 ${
+                  isActive
+                    ? 'bg-earth-600 text-white font-semibold'
+                    : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                <Icon className="w-2.5 h-2.5" />
+                <span>{item.label}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Quick Search Modal Popover for smaller desktop / tablet screens */}
+        {showSearchModal && (
+          <div className="xl:hidden pb-2 pt-1 border-t border-stone-100 animate-in fade-in duration-150">
+            <form onSubmit={handleSearchSubmit} className="flex items-center gap-1.5">
+              <div className="relative flex-1">
+                <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search Parcel PIN, Survey Number, Location..."
+                  value={localSearch}
+                  onChange={(e) => {
+                    setLocalSearch(e.target.value)
+                    if (onSearchChange) onSearchChange(e.target.value)
+                  }}
+                  className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-stone-50 border border-stone-200 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:bg-white focus:border-earth-600/50 font-mono"
+                  autoFocus
+                />
+              </div>
+              <button
+                type="submit"
+                className="px-3 py-1.5 rounded-lg bg-earth-600 hover:bg-earth-700 text-white text-xs font-semibold"
+              >
+                Search
+              </button>
               <button
                 type="button"
-                onClick={handleClearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+                onClick={() => setShowSearchModal(false)}
+                className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-600 text-xs"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
-            )}
+            </form>
           </div>
-          <button
-            type="submit"
-            className="ml-2 px-3.5 py-2 rounded-xl bg-earth-600 hover:bg-earth-500 text-white font-bold text-xs flex items-center gap-1 shrink-0 transition-colors shadow-md cursor-pointer"
-          >
-            <Search className="w-3.5 h-3.5" /> Search
-          </button>
-        </form>
-
-        {/* Right Section: Role Switcher & Wallet */}
-        <div className="hidden md:flex items-center gap-3">
-          {/* Role selector */}
-          <div className="flex items-center gap-1.5 bg-stone-100 px-2.5 py-1 rounded-lg border border-stone-200 text-xs">
-            <span className="text-stone-400 font-medium">Role:</span>
-            <select
-              value={userRole}
-              onChange={(e) => setUserRole(e.target.value as any)}
-              className="bg-transparent text-earth-600 font-semibold focus:outline-none cursor-pointer"
-            >
-              <option value="citizen" className="bg-white text-stone-700">Citizen / Landowner</option>
-              <option value="registrar" className="bg-white text-stone-700">Gov Registrar Authority</option>
-              <option value="investor" className="bg-white text-stone-700">Market Investor</option>
-            </select>
-          </div>
-
-          {/* Connect Wallet Button & Copy Action */}
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={onConnectWalletClick}
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-stone-50 text-earth-600 border border-stone-200 shadow-sm flex items-center gap-2 transition-all hover:border-earth-600/30 cursor-pointer"
-            >
-              <Wallet className="w-4 h-4 text-earth-600" />
-              {connectedAddress ? (
-                <span className="font-mono text-earth-700">
-                  {connectedAddress.slice(0, 6)}...{connectedAddress.slice(-4)}
-                </span>
-              ) : (
-                <span>Connect Wallet</span>
-              )}
-              <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
-            </button>
-
-            {connectedAddress && (
-              <button
-                onClick={handleCopyNavbarAddress}
-                title="Copy Connected Wallet Address"
-                className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-earth-600 border border-stone-200 transition-all cursor-pointer flex items-center justify-center"
-              >
-                {copiedNavbarAddress ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-stone-400" />}
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation Tabs Bar */}
-      <div className="max-w-7xl mx-auto flex items-center justify-center">
-        <nav className="flex items-center gap-1 bg-stone-100/90 p-1.5 rounded-xl border border-stone-200/80 overflow-x-auto max-w-full">
-          <button
-            onClick={() => setActiveTab('search')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-              activeTab === 'search'
-                ? 'bg-gradient-to-r from-earth-700 to-earth-600 text-white shadow-md shadow-earth-600/15 font-semibold'
-                : 'text-stone-500 hover:text-stone-700 hover:bg-white/80'
-            }`}
-          >
-            <Search className="w-3.5 h-3.5" />
-            Title Verification
-          </button>
-
-          <button
-            onClick={() => setActiveTab('upload')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-              activeTab === 'upload'
-                ? 'bg-gradient-to-r from-earth-700 to-earth-600 text-white shadow-md shadow-earth-600/15 font-semibold'
-                : 'text-stone-500 hover:text-stone-700 hover:bg-white/80'
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5" />
-            Upload Land Document
-          </button>
-
-          <button
-            onClick={() => setActiveTab('marketplace')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-              activeTab === 'marketplace'
-                ? 'bg-gradient-to-r from-earth-700 to-earth-600 text-white shadow-md shadow-earth-600/15 font-semibold'
-                : 'text-stone-500 hover:text-stone-700 hover:bg-white/80'
-            }`}
-          >
-            <Store className="w-3.5 h-3.5" />
-            Marketplace
-          </button>
-
-          <button
-            onClick={() => setActiveTab('portfolio')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-              activeTab === 'portfolio'
-                ? 'bg-gradient-to-r from-earth-700 to-earth-600 text-white shadow-md shadow-earth-600/15 font-semibold'
-                : 'text-stone-500 hover:text-stone-700 hover:bg-white/80'
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5" />
-            My Portfolio
-          </button>
-
-          <button
-            onClick={() => setActiveTab('government')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-              activeTab === 'government'
-                ? 'bg-gradient-to-r from-earth-700 to-earth-600 text-white shadow-md shadow-earth-600/15 font-semibold'
-                : 'text-stone-500 hover:text-stone-700 hover:bg-white/80'
-            }`}
-          >
-            <UserCheck className="w-3.5 h-3.5" />
-            Gov Portal
-          </button>
-        </nav>
+        )}
       </div>
     </header>
   )
